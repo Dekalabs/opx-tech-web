@@ -25,13 +25,14 @@ for (const [size, out] of [[32, "favicon-32.png"], [180, "apple-touch-icon.png"]
 
 /* ── imagen OG 1200x630 ────────────────────────────────────────────── */
 const fontDir = pathToFileURL(join(here, "assets", "fonts")).href;
+const heroImage = pathToFileURL(join(here, "assets", "hero", "arena-operational-v1.jpg")).href;
 const og = `<!doctype html><html lang="es"><head><meta charset="utf-8"><style>
   @font-face { font-family: "Outfit"; src: url("${fontDir}/outfit-var-latin.woff2") format("woff2"); font-weight: 100 900; }
   @font-face { font-family: "DM Sans"; src: url("${fontDir}/dm-sans-var-latin.woff2") format("woff2"); font-weight: 100 1000; }
   * { margin: 0; box-sizing: border-box; }
   body {
     width: 1200px; height: 630px; overflow: hidden; position: relative;
-    background: #0d0f11; color: #f4f6f8; font-family: "DM Sans", sans-serif;
+    background: #050708; color: #f6f7f8; font-family: "DM Sans", sans-serif;
     display: flex; flex-direction: column; justify-content: center; padding: 0 90px;
   }
   body::before { content: ""; position: absolute; inset: 0;
@@ -39,30 +40,24 @@ const og = `<!doctype html><html lang="es"><head><meta charset="utf-8"><style>
       linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
     background-size: 54px 54px;
     -webkit-mask-image: radial-gradient(ellipse 75% 70% at 38% 35%, black, transparent 80%); }
-  .glow { position: absolute; width: 720px; height: 720px; right: -220px; top: -260px; border-radius: 50%;
+  body::after { content: ""; position: absolute; inset: 0;
+    background: linear-gradient(90deg,#050708 0%,rgba(5,7,8,.98) 38%,rgba(5,7,8,.45) 70%,rgba(5,7,8,.12)), url("${heroImage}") 72% center / cover no-repeat;
+    opacity: .92; }
+  .glow { position: absolute; z-index: 1; width: 620px; height: 620px; right: -220px; top: -260px; border-radius: 50%;
     background: radial-gradient(circle, rgba(125,127,242,.22), transparent 65%); filter: blur(18px); }
-  .ring { position: absolute; right: -130px; top: 50%; transform: translateY(-50%); opacity: .85; }
-  .kicker { position: relative; color: #a7a9ff; font-weight: 700; font-size: 21px; letter-spacing: .18em; margin-bottom: 26px; }
-  h1 { position: relative; font-family: "Outfit", sans-serif; font-weight: 750; font-size: 88px; line-height: 1.04; letter-spacing: -0.02em; max-width: 860px; }
+  .kicker { position: relative; z-index: 2; color: #b9baff; font-weight: 700; font-size: 19px; letter-spacing: .18em; margin-bottom: 24px; }
+  h1 { position: relative; z-index: 2; font-family: "Outfit", sans-serif; font-weight: 750; font-size: 84px; line-height: .98; letter-spacing: -0.03em; max-width: 730px; }
   h1 em { font-style: normal; background: linear-gradient(100deg, #a7a9ff, #8fb7f2 55%, #37d3c4); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .sub { position: relative; margin-top: 30px; color: #aab3bd; font-size: 27px; max-width: 780px; line-height: 1.45; }
-  .row { position: relative; display: flex; gap: 34px; margin-top: 46px; font-family: "Outfit", sans-serif; font-weight: 600; font-size: 22px; }
+  .sub { position: relative; z-index: 2; margin-top: 27px; color: #b5bec7; font-size: 24px; max-width: 680px; line-height: 1.4; }
+  .row { position: relative; z-index: 2; display: flex; gap: 28px; margin-top: 38px; font-family: "Outfit", sans-serif; font-weight: 600; font-size: 20px; }
   .row span { display: inline-flex; align-items: center; gap: 10px; }
   .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
-  .url { position: absolute; right: 90px; bottom: 48px; color: #77828d; font-size: 22px; font-family: "Outfit", sans-serif; font-weight: 600; }
+  .url { position: absolute; z-index: 2; right: 56px; bottom: 42px; color: #9ca6b0; font-size: 20px; font-family: "Outfit", sans-serif; font-weight: 600; }
 </style></head><body>
   <span class="glow"></span>
-  <svg class="ring" width="560" height="560" viewBox="0 0 64 64" fill="none">
-    <g stroke-width="1.6" stroke-linecap="round">
-      <circle cx="32" cy="32" r="20" stroke="#37d3c4" stroke-dasharray="25.1 100.5" transform="rotate(-82 32 32)"/>
-      <circle cx="32" cy="32" r="20" stroke="#a7a9ff" stroke-dasharray="25.1 100.5" transform="rotate(8 32 32)"/>
-      <circle cx="32" cy="32" r="20" stroke="#f0a63f" stroke-dasharray="25.1 100.5" transform="rotate(98 32 32)"/>
-      <circle cx="32" cy="32" r="20" stroke="#5cd58c" stroke-dasharray="25.1 100.5" transform="rotate(188 32 32)"/>
-    </g>
-  </svg>
   <p class="kicker">OPX — OPTIMA X</p>
   <h1>La complejidad no se elimina. <em>Se gobierna.</em></h1>
-  <p class="sub">Una suite operativa para organizaciones que no pueden permitirse el caos.</p>
+  <p class="sub">Espacios, procesos, incidentes y aprendizaje conectados en un ciclo operativo completo.</p>
   <div class="row">
     <span><i class="dot" style="background:#37d3c4"></i>Venue</span>
     <span><i class="dot" style="background:#a7a9ff"></i>Flow</span>

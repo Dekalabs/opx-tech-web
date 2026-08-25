@@ -32,8 +32,9 @@ aparecer en la web. Venue y Flow tienen web propia; Response e Insight aún no.
 
 ## 3. Objetivo de conversión
 
-Una única conversión: **solicitar una demo** (sección de contacto). CTA
-secundaria: conocer la suite (ancla a la sección Suite).
+Una única conversión: **ver OPX en una demo** (sección de contacto). La CTA
+secundaria lleva al caso guiado para hacer tangible el ciclo antes de pedir
+datos.
 
 ## 4. Promesa y mapa narrativo
 
@@ -53,28 +54,33 @@ Promesa: la complejidad no se elimina; con OPX se gobierna. Arco de la página:
 ### Metadatos (SEO)
 
 - `<title>`: `OPX — Optima X · La complejidad se gobierna`
-- Meta descripción: `OPX es una suite operativa para organizaciones que no
-  pueden permitirse el caos. Venue, Flow, Response e Insight: cuatro productos,
-  un ciclo operativo completo.`
+- Meta descripción: `OPX conecta espacios, procesos, incidentes y aprendizaje
+  para que tu equipo decida con contexto. Cuatro productos, un ciclo operativo
+  completo.`
 
 ### Navegación
 
-Contexto · Enfoque · IA · Suite · Caso · Contacto — CTA: **Solicitar demo**
+Cómo funciona · Productos · Caso en acción · Nuestro principio — CTA:
+**Ver una demo**
 (el logotipo «OPX» enlaza al inicio de la página).
 
 ### Hero
 
 - Kicker: `OPX — OPTIMA X`
 - H1: `La complejidad no se elimina. **Se gobierna.**`
-- Sub: `OPX es una suite operativa para organizaciones que no pueden
-  permitirse el caos.`
-- CTA primaria: `Solicitar demo` → #contacto
-- CTA secundaria: `Conocer la suite` → #suite
+- Sub: `Una suite operativa que conecta espacios, procesos, incidentes y
+  aprendizaje para que tu equipo decida con contexto y actúe con control.`
+- CTA primaria: `Ver OPX en una demo` → #contacto
+- CTA secundaria: `Ver el ciclo en acción` → #caso
+- Refuerzo: `La IA estructura. Las personas deciden.`
+- Secuencia visual: `Señal → Contexto → Decisión humana → Aprendizaje`.
 
 ### Contexto (El contexto)
 
-- H2: `El mundo actual exige operar en entornos interconectados, volátiles y
-  permanentemente expuestos al cambio.`
+- Kicker: `El reto operativo`
+- H2: `Cuando todo está conectado, ninguna decisión ocurre de forma aislada.`
+- Intro: `Los entornos operativos cambian, los actores se multiplican y cada
+  respuesta deja consecuencias. Sin estructura, el control se fragmenta.`
 - Los cuatro dolores (01–04) proceden del JSON canónico (`pains`).
 - Cierre: `OPX nace para aportar claridad, coordinación y control en
   operaciones donde fallar no es una opción.`
@@ -82,13 +88,15 @@ Contexto · Enfoque · IA · Suite · Caso · Contacto — CTA: **Solicitar demo
 ### Enfoque (las cuatro preguntas)
 
 - Kicker: `El enfoque OPX`
-- H2: `Toda organización compleja se enfrenta a las mismas cuatro preguntas.`
+- H2: `Cuatro preguntas. Una sola lógica operativa.`
+- Intro: `OPX ordena la complejidad alrededor de lo que gestionas, cómo
+  operas, cómo respondes y cómo aprende tu organización.`
 - Tarjetas desde el JSON (`products[].question / question_detail`).
 
 ### IA (núcleo)
 
 - Kicker: `Núcleo de IA`
-- H2: `La inteligencia artificial como núcleo`
+- H2: `Menos ruido. Más contexto para decidir.`
 - Intro: `La IA en OPX conecta datos, señales y procesos. Detecta patrones y
   riesgos. Resalta lo relevante. Apoya mejores decisiones humanas.`
 - Pilares 01 Conecta / 02 Detecta / 03 Apoya desde el JSON (`ia_pillars`).
@@ -98,7 +106,9 @@ Contexto · Enfoque · IA · Suite · Caso · Contacto — CTA: **Solicitar demo
 ### Suite
 
 - Kicker: `La suite OPX`
-- H2: `Cuatro productos complementarios. Un ciclo operativo completo.`
+- H2: `Cuatro productos. Un ciclo de principio a fin.`
+- Intro: `Cada producto resuelve una parte de la operación. Juntos convierten
+  señales dispersas en decisiones trazables y aprendizaje continuo.`
 - Tarjetas de producto desde el JSON: eje (QUÉ GESTIONAS…), nombre, resumen,
   lema entre comillas y enlace real (`Visitar web →`) o estado honesto
   (`Web del producto próximamente`). Nunca un enlace muerto.
@@ -120,19 +130,22 @@ Contexto · Enfoque · IA · Suite · Caso · Contacto — CTA: **Solicitar demo
 
 ### Principio
 
-- H2: `Decisiones humanas, siempre`
-- Texto: `OPX aplica inteligencia artificial bajo un principio irrenunciable:
-  las decisiones siempre las toman las personas. OPX aporta claridad, contexto
-  y apoyo.`
-- Refuerzo: `El agente analiza y sugiere. Las personas deciden.`
-- Puente al CTA: `Enfrentarse a la complejidad sin estructura es improvisar.
-  Conoce cómo OPX puede ayudarte a gobernarla.`
+- Kicker: `Principio irrenunciable`
+- H2: `Decisiones humanas, siempre.`
+- Texto: `OPX aporta claridad, contexto y apoyo. El agente analiza y sugiere;
+  las decisiones siempre las toman las personas.`
+- Refuerzo: `La tecnología ordena la complejidad. Tu equipo mantiene el
+  control.`
 
 ### Contacto
 
-- H2: `Hablemos`
-- Intro: `Descubre cómo OPX puede transformar tu operativa. Déjanos tus datos
-  y coordinaremos una demostración personalizada.`
+- Kicker: `Tu operación, con contexto`
+- H2: `Ve OPX trabajando sobre un escenario como el tuyo.`
+- Intro: `Cuéntanos qué gestionas y dónde se concentra hoy la complejidad.
+  Prepararemos una demostración centrada en tu operativa.`
+- Expectativas: `Un recorrido por el ciclo completo.` · `Un caso adaptado a
+  tu contexto operativo.` · `Una conversación centrada en tu equipo y tus
+  decisiones.`
 - Formulario (accesible, desactivado hasta que exista endpoint): Nombre
   completo · Email profesional · Organización · Mensaje (opcional) · botón
   `Solicitar demo`. Nota mientras esté desactivado: `El envío directo estará
@@ -189,5 +202,8 @@ superlativos. La IA se describe como apoyo, nunca como decisora.
 | Cifras del panel operativo (87 %, Alto, 2, Medio, 92 %) | venue.opx.tech (mock público) |
 | URLs de Venue y Flow; Response/Insight sin web | verificación DNS/HTTP 2026-08-25 |
 | Escenario Arena Cierzo, actores, horas, 63 % | Ficción del caso canónico (marcada como recreación) |
+| `Espacios → procesos → incidentes → aprendizaje` y `Señal → contexto → decisión humana → aprendizaje` | Síntesis editorial del ciclo aprobado y del caso canónico |
+| Referencias visuales a roles, grupos, protocolos, trazabilidad y paneles operativos | Backend adjunto `/Users/gattai/Developer/Deka/opx/`, usado como evidencia interna de vocabulario y arquitectura; no añade claims de resultados |
+| Nuevos titulares editoriales (`Cuando todo está conectado…`, `Menos ruido…`, `Un ciclo de principio a fin`) | Reformulación de los dolores, pilares de IA y claim de ciclo ya aprobados; no incorpora una capacidad ni un resultado nuevos |
 
 Todo lo que no esté en esta tabla es `NEEDS_INPUT` y no puede publicarse.

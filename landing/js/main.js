@@ -37,12 +37,13 @@ if (!reduced) {
       });
     } catch { /* SplitText no disponible: se conserva el titular estático */ }
   }
-  gsap.from(".hero .kicker, .hero-lead, .hero .cta-row", {
+  gsap.from(".hero .kicker, .hero-lead, .hero .cta-row, .hero-principle", {
     y: 22, autoAlpha: 0, duration: 0.8, ease: "power2.out", stagger: 0.12, delay: 0.35,
   });
-  gsap.to(".hero-ring-arc", { rotation: 360, transformOrigin: "50% 50%", repeat: -1, duration: 46, ease: "none" });
+  gsap.from(".hero-visual", { x: 34, autoAlpha: 0, duration: 1.05, ease: "power3.out", delay: 0.22 });
+  gsap.from(".hero-console", { y: 22, autoAlpha: 0, duration: 0.8, ease: "power2.out", delay: 0.65 });
 
-  ScrollTrigger.batch(".card, .pain, .case-step, .mock-panel, .ia-quote", {
+  ScrollTrigger.batch(".card, .pain, .mock-panel, .ia-quote", {
     start: "top 92%",
     once: true,
     onEnter: (els) => gsap.from(els, { y: 26, autoAlpha: 0, duration: 0.7, ease: "power2.out", stagger: 0.07 }),
@@ -203,7 +204,7 @@ const presentApi = (() => {
     document.querySelector(".site-header")?.setAttribute("inert", "");
     document.querySelector(".site-footer")?.setAttribute("inert", "");
     ScrollTrigger.getAll().forEach((st) => st.disable(false));
-    gsap.set(".card, .pain, .case-step, .mock-panel, .ia-quote, .hero h1 div, .hero .kicker, .hero-lead, .hero .cta-row", { clearProps: "all" });
+    gsap.set(".card, .pain, .case-step, .mock-panel, .ia-quote, .hero h1 div, .hero .kicker, .hero-lead, .hero .cta-row, .hero-principle, .hero-visual, .hero-console", { clearProps: "all" });
     const fromView = slides.findIndex((s) => s.getBoundingClientRect().bottom > 80);
     document.documentElement.requestFullscreen?.().catch(() => {});
     show(Math.max(0, fromView), true);
@@ -279,6 +280,21 @@ const presentApi = (() => {
     const dx = e.clientX - touchX;
     touchX = null;
     if (Math.abs(dx) > 56) show(active + (dx < 0 ? 1 : -1));
+  });
+
+  /* Los enlaces internos visibles en una diapositiva navegan dentro de la
+     presentación en vez de limitarse a cambiar el hash tras el overlay. */
+  document.addEventListener("click", (e) => {
+    if (!open) return;
+    const link = e.target.closest('a[href^="#"]');
+    if (!link) return;
+    const id = link.getAttribute("href").slice(1);
+    const target = document.getElementById(id)?.closest("main > section[data-present]");
+    const index = slides.indexOf(target);
+    if (index < 0) return;
+    e.preventDefault();
+    history.replaceState(null, "", `#${id}`);
+    show(index);
   });
 
   window.addEventListener("resize", () => { if (open) fit(); });

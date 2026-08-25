@@ -31,21 +31,21 @@ opx.tech y autoalojable con licencia libre (DECISIONS.md · 4).
 
 | Token | Valor | Uso |
 |---|---|---|
-| `--bg-0 / --bg-1 / --bg-2` | `#07090b / #0d0f11 / #14171c` | fondos (base: el `#0d0f11` de opx.tech) |
-| `--ink-hi / --ink-mid / --ink-low` | `#f4f6f8 / #aab3bd / #77828d` | texto |
-| `--accent-300/400/500` | `#a7a9ff / #7d7ff2 / #5356dd` | acento violeta/índigo de marca |
-| `--ok` | `#37d3c4` | éxito / confirmación |
-| `--warn` | `#f0a63f` | aviso / riesgo medio |
-| `--danger` | `#ef5a4e` | riesgo alto / descartado |
+| `--bg-0 / --bg-1 / --bg-2` | `#050708 / #090c0f / #10151a` | fondos profundos derivados del `#0d0f11` de opx.tech |
+| `--ink-hi / --ink-mid / --ink-low` | `#f6f7f8 / #b5bec7 / #75818b` | texto con mayor contraste editorial |
+| `--accent-300/400/500` | `#b9baff / #8587f3 / #6265e8` | acento violeta/índigo de marca |
+| `--ok` | `#42d8c7` | éxito / confirmación |
+| `--warn` | `#f4ad45` | aviso / riesgo medio |
+| `--danger` | `#f16a5d` | riesgo alto / descartado |
 
 ### Acentos por producto (definidos en este paquete)
 
 | Producto | Token | Valor |
 |---|---|---|
-| Optima Venue | `--p-venue` | `#37d3c4` |
-| Optima Flow | `--p-flow` | `#a7a9ff` |
-| Optima Response | `--p-response` | `#f0a63f` |
-| Optima Insight | `--p-insight` | `#5cd58c` |
+| Optima Venue | `--p-venue` | `#42d8c7` |
+| Optima Flow | `--p-flow` | `#aaaaff` |
+| Optima Response | `--p-response` | `#f4ad45` |
+| Optima Insight | `--p-insight` | `#64dd94` |
 
 Se usan en las cuatro preguntas, las tarjetas de la suite, el diagrama del
 ciclo y la línea temporal del caso. Reversibles (DECISIONS.md · 4).

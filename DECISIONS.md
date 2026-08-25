@@ -55,3 +55,15 @@ vivas: 2026-08-25.
     `brand/README.md`. El subset latin cubre todo el español (tildes, ñ, ¿¡).
 11. **README raíz**: se antepuso una sección del paquete al README de la
     plantilla sin borrar su contenido original.
+12. **Backend como evidencia interna, no como catálogo comercial**: el
+    repositorio adjunto `/Users/gattai/Developer/Deka/opx/` confirma la lógica
+    de roles, grupos, tareas, protocolos, incidencias, trazabilidad y paneles
+    compartidos entre Venue, Flow y Response. Se usó para concretar el lenguaje
+    y los mocks, pero no para publicar módulos, integraciones o estados que aún
+    no figuren en el inventario aprobado.
+13. **Imagen editorial del hero**: se generó una escena arquitectónica original
+    de un recinto operativo nocturno, sin texto, logos, personas identificables
+    ni pantallas falsas. Funciona como contexto visual; la interfaz superpuesta
+    sigue siendo HTML/CSS y está marcada como recreación alimentada por el caso
+    canónico. Fuente de trabajo:
+    `landing/assets/hero/arena-operational-v1.jpg`.

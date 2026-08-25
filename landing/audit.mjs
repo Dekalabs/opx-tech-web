@@ -275,7 +275,22 @@ console.log("\n■ Página (contexto normal, 1440x900)");
   });
   if (trans.fail) add("caso guiado", false, trans.fail);
   else for (const [name, pass] of trans.out) add(`caso guiado: ${name}`, pass);
+  const pendingOpacity = await page.evaluate(() => Number(getComputedStyle(document.querySelector(".case-step")).opacity));
+  add("pasos pendientes conservan contraste legible", pendingOpacity >= 0.7, `opacity=${pendingOpacity}`);
 
+  await ctx.close();
+}
+
+/* un hash directo no puede competir con una animación y ocultar el caso */
+{
+  const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 } });
+  const page = await ctx.newPage();
+  await page.route("**/*", (route) =>
+    route.request().url().startsWith("file://") ? route.continue() : route.abort());
+  await page.goto(`${URL_BASE}#caso`, { waitUntil: "load" });
+  await page.waitForTimeout(1800);
+  const opacity = await page.evaluate(() => Number(getComputedStyle(document.querySelector(".case-step")).opacity));
+  add("enlace directo #caso mantiene el primer paso visible", opacity >= 0.7, `opacity=${opacity}`);
   await ctx.close();
 }
 
@@ -297,10 +312,17 @@ for (const [w, h] of [[390, 844], [768, 1024], [1440, 900], [2560, 1440]]) {
         const cs = getComputedStyle(el);
         return Number(cs.opacity) < 0.5 || cs.visibility === "hidden" || cs.display === "none";
       }).length;
-    return { overflowX, hidden };
+    const smallTargets = [...document.querySelectorAll("a[href],button,input,textarea,select")]
+      .filter((el) => el.offsetParent !== null)
+      .filter((el) => {
+        const r = el.getBoundingClientRect();
+        return r.width < 24 || r.height < 24;
+      }).length;
+    return { overflowX, hidden, smallTargets };
   });
   add(`sin desbordamiento horizontal a ${w}x${h}`, metrics.overflowX <= 1, `${metrics.overflowX}px`);
   add(`contenido visible con reduced-motion a ${w}x${h}`, metrics.hidden === 0, `${metrics.hidden} ocultos`);
+  add(`blancos táctiles ≥ 24 px a ${w}x${h}`, metrics.smallTargets === 0, `${metrics.smallTargets} pequeños`);
   await ctx.close();
 }
 
@@ -370,6 +392,11 @@ for (const [w, h, full] of [[1280, 720, true], [1920, 1080, false]]) {
   add(`contador coherente (${w}x${h})`, counterFails.length === 0);
 
   if (full) {
+    await page.evaluate(() => window.OPX.presentApi.goto(0));
+    await page.click('#inicio a[href="#contacto"]');
+    const ctaWorks = await page.evaluate(() => document.querySelector("#contacto")?.classList.contains("is-active"));
+    add("CTA interna navega entre diapositivas", ctaWorks);
+
     await page.keyboard.press("Home");
     const atHome = await page.evaluate(() => window.OPX.presentApi.active() === 0);
     await page.keyboard.press("End");

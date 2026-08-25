@@ -45,6 +45,7 @@ const pains = data.pains.map((p) => `
 
 const questions = products.map((p) => `
           <article class="card question-card" data-p="${p.id}">
+            <span class="question-index" aria-hidden="true">0${products.indexOf(p) + 1}</span>
             <h3>${esc(p.question)}</h3>
             <p>${esc(p.question_detail)}</p>
           </article>`).join("");
@@ -62,7 +63,7 @@ const suiteCards = products.map((p) => {
     : `<span class="suite-soon">Web del producto próximamente</span>`;
   return `
             <article class="card suite-card" data-p="${p.id}">
-              <p class="suite-axis">${esc(p.axis)}</p>
+              <div class="suite-card-top"><span class="suite-number" aria-hidden="true">0${products.indexOf(p) + 1}</span><p class="suite-axis">${esc(p.axis)}</p></div>
               <h3>${esc(p.name)}</h3>
               <p>${esc(p.summary)}</p>
               <p class="suite-tagline">«${esc(p.tagline)}»</p>
@@ -70,36 +71,27 @@ const suiteCards = products.map((p) => {
             </article>`;
 }).join("");
 
-/* Diagrama SVG del ciclo: 4 nodos sobre un anillo */
-const R = 210, CX = 320, CY = 320, NODE_R = 64;
-const angles = { venue: -90, flow: 0, response: 90, insight: 180 };
-const pos = (deg) => {
-  const rad = (deg * Math.PI) / 180;
-  return { x: CX + R * Math.cos(rad), y: CY + R * Math.sin(rad) };
-};
 const nodes = products.map((p) => {
-  const { x, y } = pos(angles[p.id]);
   const inner = `
-      <circle class="cycle-node-dot" cx="${x}" cy="${y}" r="${NODE_R}"></circle>
-      <text class="cycle-node-name" x="${x}" y="${y - 4}" text-anchor="middle">${esc(p.name.replace("Optima ", ""))}</text>
-      <text class="cycle-node-axis" x="${x}" y="${y + 16}" text-anchor="middle">${esc(p.axis)}</text>`;
+                <span class="cycle-node-index" aria-hidden="true">0${products.indexOf(p) + 1}</span>
+                <span class="cycle-node-copy"><strong>${esc(p.name.replace("Optima ", ""))}</strong><small>${esc(p.axis)}</small></span>
+                <span class="cycle-node-arrow" aria-hidden="true">→</span>`;
   return p.status === "live" && p.url
     ? `<a href="${esc(p.url)}" target="_blank" rel="noopener" class="cycle-node" data-p="${p.id}" aria-label="${esc(p.name)} — ${esc(p.axis)} (abrir web)">${inner}</a>`
-    : `<g class="cycle-node" data-p="${p.id}" role="img" aria-label="${esc(p.name)} — ${esc(p.axis)} (web próximamente)">${inner}</g>`;
+    : `<div class="cycle-node" data-p="${p.id}" role="group" aria-label="${esc(p.name)} — ${esc(p.axis)} (web próximamente)">${inner}</div>`;
 }).join("\n");
 
 const cycle = `
-            <svg class="cycle-svg" viewBox="0 0 640 640" role="img" aria-label="Ciclo de la suite OPX: Venue, Flow, Response e Insight se refuerzan en un ciclo continuo">
-              <title>El ciclo operativo de la suite OPX</title>
-              <circle class="cycle-ring" cx="${CX}" cy="${CY}" r="${R}"></circle>
-              <circle class="cycle-flow" id="cycle-flow" cx="${CX}" cy="${CY}" r="${R}"></circle>
-              <text class="cycle-center" x="${CX}" y="${CY + 10}" text-anchor="middle">OPX</text>
+            <div class="cycle-board" role="group" aria-label="Ciclo de la suite OPX: Venue, Flow, Response e Insight se refuerzan en un ciclo continuo">
               ${nodes}
-            </svg>`;
+              <p class="cycle-return"><span aria-hidden="true">↳</span> El aprendizaje vuelve a la operación</p>
+            </div>`;
 
 const caseHeading = `
-        <h2>${esc(data.case.title)}</h2>
-        <p class="lead">${esc(data.case.intro)}</p>`;
+        <div class="case-heading-copy">
+          <h2>${esc(data.case.title)}</h2>
+          <p class="lead">${esc(data.case.intro)}</p>
+        </div>`;
 
 const stateLabel = { pendiente: "Pendiente", activo: "Activo", completado: "Completado", descartado: "Descartado" };
 const steps = data.case.steps.map((s) => {
@@ -130,6 +122,33 @@ const steps = data.case.steps.map((s) => {
 
 const panel = data.mocks.venue_panel;
 const toneClass = { riesgo: "tone-riesgo", aviso: "tone-aviso", neutro: "tone-neutro" };
+const heroConsole = `
+          <div class="hero-console" role="group" aria-label="Recreación de una vista operativa de OPX">
+            <div class="console-bar">
+              <span><i></i> ${esc(data.case.venue_name)}</span>
+              <span class="console-live">Operación en curso</span>
+            </div>
+            <div class="console-body">
+              <div class="console-signal">
+                <p>Señal prioritaria</p>
+                <strong>${esc(panel.rows[0].value)}</strong>
+                <span>${esc(panel.rows[0].label)}</span>
+                <div class="signal-meter" aria-hidden="true"><i style="width:${esc(panel.rows[0].value.replace(" ", ""))}"></i></div>
+              </div>
+              <div class="console-map" aria-hidden="true">
+                <span class="map-zone zone-a"></span><span class="map-zone zone-b"></span><span class="map-zone zone-c"></span>
+                <span class="map-route route-a"></span><span class="map-route route-b"></span>
+                <i class="map-alert"></i>
+              </div>
+              <div class="console-decision">
+                <p><span>OPX sugiere</span><time>${esc(data.case.steps[0].time)}</time></p>
+                <strong>Redirigir el flujo a los accesos secundarios</strong>
+                <div><span>Riesgo ${esc(panel.risk.value)}</span><span>Confianza ${esc(panel.confidence.value)}</span></div>
+                <small>Decisión humana requerida</small>
+              </div>
+            </div>
+            <p class="mock-caption">Recreación visual alimentada por el caso canónico.</p>
+          </div>`;
 const venueMock = `
             <div class="mock-panel" role="group" aria-label="Recreación del panel operativo de Optima Venue">
               <div class="mock-head"><span class="mock-title">${esc(panel.title)}</span><span class="mock-badge">${esc(panel.badge)}</span></div>
@@ -172,6 +191,7 @@ const footerSuite = products.map((p) => p.status === "live" && p.url
 /* ── sustitución entre marcadores ──────────────────────────────────── */
 const regions = {
   "json": `  ${json}`,
+  "hero-console": heroConsole,
   "pains": pains,
   "questions": questions,
   "ia-pillars": pillars,
