@@ -1,0 +1,22 @@
+{
+  "auth": {
+    "description": "Una plantilla awesómica de Dekalabs",
+    "login": "Iniciar sesión",
+    "logout": "Cerrar sesión",
+    "name": "¿Cómo te llamas?"
+  },
+  "controlPanel": {
+    "menu": "Panel de Control",
+    "title": "Esto es el panel de control"
+  },
+  "errors": {
+    "404": "Página no encontrada"
+  },
+  "general": {
+    "welcome": "Bienvenido a"
+  },
+  "statistics": {
+    "menu": "Estadísticas",
+    "title": "Esto son las estadísticas"
+  }
+}
