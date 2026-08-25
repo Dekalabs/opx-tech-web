@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="14" fill="#0d0f11"/>
+  <g fill="none" stroke-width="6" stroke-linecap="round">
+    <circle cx="32" cy="32" r="20" stroke="#37d3c4" stroke-dasharray="25.1 100.5" transform="rotate(-82 32 32)"/>
+    <circle cx="32" cy="32" r="20" stroke="#a7a9ff" stroke-dasharray="25.1 100.5" transform="rotate(8 32 32)"/>
+    <circle cx="32" cy="32" r="20" stroke="#f0a63f" stroke-dasharray="25.1 100.5" transform="rotate(98 32 32)"/>
+    <circle cx="32" cy="32" r="20" stroke="#5cd58c" stroke-dasharray="25.1 100.5" transform="rotate(188 32 32)"/>
+  </g>
+  <circle cx="32" cy="32" r="5" fill="#7d7ff2"/>
+</svg>

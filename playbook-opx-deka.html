@@ -1,0 +1,3126 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Playbook interno — producción web y audiovisual con IA</title>
+  <style>
+    :root{
+      --bg-0:#05070a; --bg-1:#0a0f15; --bg-2:#10161d;
+      --ink-hi:#f5f7f8; --ink-mid:#aeb8bf; --ink-low:#7e8a92;
+      --brand-300:#a7a9ff; --brand-400:#797cef; --brand-500:#5053da;
+      --teal:#37d3c4; --amber:#f5a742; --green:#5cd58c; --red:#f05a4f;
+      --line:rgba(255,255,255,.11); --line-strong:rgba(255,255,255,.22);
+      --radius:16px;
+    }
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:var(--bg-0); color:var(--ink-hi);
+      font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      font-size:16px; line-height:1.55; overflow:hidden;
+    }
+    body::before{
+      content:""; position:fixed; inset:0; pointer-events:none;
+      background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+      background-size:56px 56px;
+      mask-image:radial-gradient(circle at 30% 20%,black,transparent 75%);
+    }
+    body::after{
+      content:""; position:fixed; width:60vw; height:60vw; right:-25vw; top:-30vw; pointer-events:none;
+      background:radial-gradient(circle,rgba(121,124,239,.14),transparent 68%); filter:blur(20px);
+    }
+
+    header{
+      position:fixed; inset:0 0 auto 0; z-index:50; display:flex; align-items:center; justify-content:space-between;
+      padding:18px 34px; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-low);
+    }
+    header b{color:var(--ink-mid); font-weight:600}
+    .header-tools{display:flex; align-items:center; gap:6px}
+    .header-search{
+      display:inline-flex; align-items:center; gap:7px; margin-block:-7px; padding:7px 9px;
+      border:1px solid transparent; border-radius:8px; background:transparent; color:var(--ink-low);
+      font:inherit; letter-spacing:inherit; text-transform:inherit; cursor:pointer;
+      transition:border-color .18s,background .18s,color .18s;
+    }
+    .header-search svg{width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round}
+    .header-search:hover{border-color:var(--line); background:rgba(255,255,255,.05); color:var(--ink-mid)}
+    .header-search:focus-visible{outline:2px solid var(--brand-300); outline-offset:2px}
+    .header-search[aria-expanded="true"]{border-color:rgba(167,169,255,.36); background:rgba(121,124,239,.13); color:var(--brand-300)}
+    header .counter{
+      display:inline-flex; align-items:center; gap:7px; margin:-7px -9px -7px 0; padding:7px 9px;
+      border:1px solid transparent; border-radius:8px; background:transparent; color:var(--ink-low);
+      font:inherit; letter-spacing:inherit; text-transform:inherit; font-variant-numeric:tabular-nums;
+      cursor:pointer; transition:border-color .18s,background .18s,color .18s;
+    }
+    header .counter b{color:var(--brand-300)}
+    header .counter svg{width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.35}
+    header .counter:hover{border-color:var(--line); background:rgba(255,255,255,.05); color:var(--ink-mid)}
+    header .counter:focus-visible{outline:2px solid var(--brand-300); outline-offset:2px}
+    header .counter[aria-expanded="true"]{border-color:rgba(167,169,255,.36); background:rgba(121,124,239,.13); color:var(--brand-300)}
+
+    main{position:relative; height:100%; z-index:1}
+    .slide{
+      position:absolute; inset:0; display:grid; align-items:center; justify-items:stretch;
+      padding:88px clamp(30px,6vw,110px) 104px; opacity:0; visibility:hidden; transform:translateY(14px);
+      transition:opacity .45s ease, transform .45s ease, visibility 0s linear .45s;
+      overflow:hidden;
+    }
+    .slide.active{opacity:1; visibility:visible; transform:none; transition:opacity .5s ease, transform .5s ease}
+    .slide-inner{width:min(1220px,100%); margin-inline:auto}
+
+    .eyebrow{
+      display:inline-flex; align-items:center; gap:10px; margin:0 0 16px;
+      color:var(--brand-300); font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
+    }
+    .eyebrow i{width:26px; height:1px; background:var(--brand-400)}
+    .eyebrow span{color:var(--ink-low)}
+    h1{margin:0 0 14px; font-size:clamp(2.4rem,5.6vw,4.2rem); line-height:1.05; letter-spacing:-.03em; font-weight:800}
+    h1 em{font-style:normal; background:linear-gradient(100deg,#a7a9ff,#8fb7f2 55%,#37d3c4); -webkit-background-clip:text; background-clip:text; color:transparent}
+    h2{margin:0 0 22px; font-size:clamp(1.7rem,3.2vw,2.5rem); line-height:1.12; letter-spacing:-.025em; font-weight:800}
+    h2 em{font-style:normal; color:var(--brand-300)}
+    .lead{max-width:64ch; color:var(--ink-mid); font-size:clamp(.98rem,1.4vw,1.12rem)}
+    .lead strong{color:var(--ink-hi)}
+
+    kbd{
+      display:inline-block; min-width:22px; padding:3px 7px; border:1px solid var(--line-strong); border-bottom-width:2px;
+      border-radius:6px; background:var(--bg-2); color:var(--ink-hi); font:600 11px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace; text-align:center;
+    }
+    code{
+      padding:2px 7px; border:1px solid var(--line); border-radius:6px; background:rgba(255,255,255,.05);
+      font:500 .82em ui-monospace,SFMono-Regular,Menlo,monospace; color:#cfe0ea;
+    }
+    pre{
+      margin:0; padding:15px 17px; border:1px solid var(--line); border-radius:12px; background:var(--bg-1);
+      font:500 12.5px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace; color:#c8d8e2; overflow-x:auto;
+    }
+    pre b{color:var(--teal); font-weight:600}
+    pre i{color:var(--ink-low); font-style:normal}
+
+    .prompt{position:relative; padding-top:34px; background:linear-gradient(155deg,#0c1218,#080d12); font-size:12px; line-height:1.65; white-space:pre-wrap; color:#d6e2ea}
+    .prompt::before{
+      content:"PROMPT"; position:absolute; top:10px; left:14px; padding:2px 8px; border-radius:5px;
+      background:rgba(121,124,239,.18); color:var(--brand-300); font-size:9px; font-weight:700; letter-spacing:.14em;
+    }
+    .prompt.result::before{content:"QUÉ ESPERAR"; background:rgba(55,211,196,.14); color:var(--teal)}
+    .prompt.en::before{content:"PROMPT · EN"}
+    .prompt.small{font-size:10.6px; line-height:1.55; padding-top:30px}
+    .prompt.dense{font-size:9.8px; line-height:1.42; padding-top:28px}
+    .copyable{
+      position:relative; padding-top:34px; background:linear-gradient(155deg,#0c1218,#080d12);
+      font-size:10.5px; line-height:1.48; white-space:pre-wrap; color:#d6e2ea;
+    }
+    .copyable::before{
+      content:attr(data-copy-label); position:absolute; top:10px; left:14px; padding:2px 8px; border-radius:5px;
+      background:rgba(55,211,196,.14); color:var(--teal); font-size:9px; font-weight:700; letter-spacing:.14em;
+    }
+    .prompt:target{border-color:var(--brand-400); box-shadow:0 0 0 2px rgba(121,124,239,.16)}
+    .prompt-shell{position:relative; min-width:0}
+    .prompt-shell>.prompt{width:100%; height:100%}
+    .prompt-shell:has(>.prompt[data-prompt-id]){min-height:0; max-height:57vh}
+    .prompt-shell>.prompt[data-prompt-id]{
+      height:auto; max-height:57vh; overflow:auto; overscroll-behavior:contain;
+      scrollbar-gutter:stable; scrollbar-color:var(--line-strong) transparent;
+    }
+    .prompt-shell>.prompt[data-prompt-id]:focus-visible{outline:2px solid var(--brand-300); outline-offset:-3px}
+    .prompt-examples .prompt-shell{height:168px; min-height:0}
+    .prompt-examples .prompt-shell>.prompt{
+      height:100%; overflow:auto; overscroll-behavior:contain;
+      scrollbar-gutter:stable; scrollbar-color:var(--line-strong) transparent;
+    }
+    .prompt-preflight .split{grid-template-columns:minmax(250px,.68fr) minmax(0,1.32fr); gap:30px}
+    .prompt-preflight .prompt-shell{height:402px; min-height:0}
+    .prompt-preflight .prompt-shell>.prompt{
+      height:100%; overflow:auto; overscroll-behavior:contain;
+      scrollbar-gutter:stable; scrollbar-color:var(--line-strong) transparent;
+    }
+    .copy-prompt{
+      position:absolute; z-index:2; top:8px; right:9px; display:grid; place-items:center;
+      width:28px; height:28px; padding:0; border:1px solid var(--line); border-radius:7px;
+      background:#151c24; color:var(--ink-mid); cursor:pointer; transition:border-color .18s,color .18s,background .18s;
+    }
+    .copy-prompt svg{width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round}
+    .copy-prompt:hover{border-color:var(--line-strong); color:var(--ink-hi); background:#1a232d}
+    .copy-prompt:focus-visible{outline:2px solid var(--brand-300); outline-offset:2px}
+    .copy-prompt.copied{border-color:rgba(92,213,140,.5); color:var(--green); background:rgba(92,213,140,.09)}
+    .copy-prompt.copy-error{border-color:rgba(240,90,79,.55); color:#ff8a80; background:rgba(240,90,79,.09)}
+    .prompt-scroll-hint{
+      position:absolute; z-index:2; top:15px; right:46px; color:var(--ink-low);
+      font:700 8px/1 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      letter-spacing:.05em; text-transform:uppercase; pointer-events:none;
+    }
+    .prompt-ref{
+      margin:12px 0 0; color:var(--ink-low); font-size:11.5px; line-height:1.45;
+    }
+    .prompt-ref strong{color:var(--brand-300)}
+    .prompt-ref code{font-size:.92em}
+    .prompt-ref a{color:var(--brand-300); text-decoration:none}
+    .prompt-ref a:hover{text-decoration:underline}
+
+    .tree-map{display:grid; grid-template-columns:minmax(0,1.45fr) minmax(280px,.75fr); gap:26px; align-items:start; margin-top:16px}
+    .tree{
+      padding:14px 19px; font-size:11.5px; line-height:1.42; white-space:pre; overflow:hidden;
+    }
+    .tree .knowledge{color:var(--teal)}
+    .tree .automation{color:var(--brand-300)}
+    .tree .output{color:var(--amber)}
+    .tree-notes{display:grid; gap:7px}
+    .tree-notes .card{padding:10px 13px}
+    .tree-notes .card p{font-size:11.5px; line-height:1.45}
+    .tree-flow{margin:4px 0 0; color:var(--ink-mid); font-size:11.5px; line-height:1.45}
+    .tree-notes .prompt-ref{margin-top:3px}
+
+    .grid{display:grid; gap:13px; margin-top:26px}
+    .grid.compact .card{padding:11px 14px}
+    .grid.compact .card p{font-size:12px}
+    .grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .card{
+      padding:16px 18px; border:1px solid var(--line); border-radius:var(--radius);
+      background:linear-gradient(155deg,rgba(17,23,30,.85),rgba(8,12,16,.9));
+    }
+    .card h3{display:flex; align-items:center; gap:9px; margin:0 0 7px; font-size:14px; letter-spacing:.01em}
+    .card h3 i{flex:none; width:7px; height:7px; border-radius:50%; background:var(--dot,#797cef); box-shadow:0 0 10px color-mix(in srgb,var(--dot,#797cef) 60%,transparent)}
+    .card p{margin:0; color:var(--ink-mid); font-size:12.5px; line-height:1.6}
+    .card p+p{margin-top:6px}
+    .card .tag{display:inline-block; margin-top:9px; color:var(--ink-low); font-size:10px; letter-spacing:.12em; text-transform:uppercase}
+
+    .steps{display:flex; flex-wrap:wrap; align-items:center; gap:9px; margin-top:26px}
+    .steps .step{
+      display:flex; align-items:center; gap:9px; padding:10px 15px; border:1px solid var(--line); border-radius:999px;
+      background:var(--bg-1); font-size:12.5px; font-weight:600;
+    }
+    a.step{color:var(--ink-hi); text-decoration:none}
+    a.step:hover{border-color:var(--line-strong)}
+    .steps .step b{display:grid; place-items:center; width:21px; height:21px; border-radius:50%; background:var(--step,#5053da); color:white; font-size:10px}
+    .steps .arrow{color:var(--ink-low); font-size:14px}
+    .steps .loop{color:var(--teal); font-size:11.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase}
+
+    table{width:100%; margin-top:22px; border-collapse:collapse; font-size:13px}
+    th,td{padding:7px 13px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top}
+    th{color:var(--ink-low); font-size:10px; letter-spacing:.13em; text-transform:uppercase; font-weight:600}
+    td:first-child{white-space:nowrap; color:var(--ink-hi); font-weight:600}
+    td{color:var(--ink-mid)} td strong{color:var(--ink-hi); font-weight:600}
+    td code{white-space:nowrap}
+
+    ul.checks{margin:22px 0 0; padding:0; list-style:none; display:grid; gap:10px}
+    ul.checks li{position:relative; padding-left:26px; color:var(--ink-mid); font-size:13.5px}
+    ul.checks li::before{content:"✓"; position:absolute; left:0; top:1px; color:var(--green); font-weight:700}
+    ul.checks li.warn::before{content:"!"; color:var(--amber)}
+    ul.checks li strong{color:var(--ink-hi)}
+
+    .split{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:38px; align-items:center}
+
+    .contract-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 28px; margin-top:22px; border-top:1px solid var(--line)}
+    .contract-item{display:grid; grid-template-columns:34px minmax(0,1fr); gap:12px; padding:13px 0; border-bottom:1px solid var(--line)}
+    .contract-item b{color:var(--brand-300); font:700 11px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace}
+    .contract-item h3{margin:0 0 3px; font-size:14px; line-height:1.3}
+    .contract-item p{margin:0; color:var(--ink-mid); font-size:12.5px; line-height:1.5}
+    .contract-note{display:flex; justify-content:space-between; gap:28px; margin-top:18px; padding:13px 16px; border-left:2px solid var(--teal); background:rgba(55,211,196,.05)}
+    .contract-note p{margin:0; color:var(--ink-mid); font-size:12.5px; line-height:1.5}
+    .contract-note p:first-child{max-width:72ch}
+    .contract-note a{color:var(--brand-300); text-decoration:none; white-space:nowrap}
+    .contract-note a:hover{text-decoration:underline}
+
+    .instruction-files{display:grid; grid-template-columns:minmax(0,1.3fr) minmax(280px,.7fr); gap:22px; align-items:start; margin-top:14px}
+    .instruction-files .agents-file .prompt-shell{height:390px}
+    .instruction-files .claude-file .prompt-shell{height:178px}
+    .instruction-files .prompt-shell>.copyable{height:100%; overflow:auto; overscroll-behavior:contain; scrollbar-gutter:stable; scrollbar-color:var(--line-strong) transparent}
+    .instruction-files .card{margin-top:12px; padding:13px 15px}
+    .agent-file-prompts .prompt-shell{height:420px; min-height:0}
+    .agent-file-prompts .prompt-shell>.prompt{height:100%; overflow:auto; overscroll-behavior:contain; scrollbar-gutter:stable; scrollbar-color:var(--line-strong) transparent}
+    .models-slide ul.checks{gap:6px}
+    .models-slide ul.checks li{font-size:12.5px}
+    .models-slide .prompt-ref{margin-top:6px}
+
+    .package-flow{
+      display:grid; grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr) 24px minmax(0,1fr);
+      gap:16px; align-items:stretch; margin-top:26px;
+    }
+    .package-stage{min-width:0; padding:15px 4px 0; border-top:2px solid var(--stage,var(--brand-400))}
+    .package-stage .stage-label{
+      display:block; margin-bottom:7px; color:var(--stage,var(--brand-300));
+      font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+    }
+    .package-stage h3{margin:0; font-size:18px; line-height:1.25}
+    .package-list{margin:13px 0 0; padding:0; list-style:none; display:grid; gap:8px}
+    .package-list li{position:relative; padding-left:15px; color:var(--ink-mid); font-size:12.5px; line-height:1.45}
+    .package-list li::before{content:"—"; position:absolute; left:0; color:var(--stage,var(--brand-300))}
+    .package-arrow{display:grid; place-items:center; color:var(--ink-low); font-size:20px}
+    .package-note{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:28px;
+      margin-top:25px; padding-top:15px; border-top:1px solid var(--line); color:var(--ink-mid); font-size:12.5px;
+    }
+    .package-note p{max-width:72ch; margin:0}
+    .package-note strong{color:var(--ink-hi)}
+    .package-note a{flex:none; color:var(--brand-300); font-weight:700; text-decoration:none}
+    .package-note a:hover{text-decoration:underline}
+
+    footer{
+      position:fixed; inset:auto 0 0 0; z-index:10; display:flex; align-items:center; justify-content:space-between;
+      padding:15px 34px; color:var(--ink-low); font-size:11px;
+    }
+    footer .dots{display:flex; gap:6px}
+    footer .dots button{
+      width:14px; height:4px; border:0; border-radius:2px; background:rgba(255,255,255,.14); cursor:pointer; padding:0;
+      transition:background .25s, width .25s;
+    }
+    footer .dots button.active{width:28px; background:var(--brand-400)}
+    footer .hint{display:flex; gap:8px; align-items:center}
+    footer .nav{display:flex; gap:8px}
+    footer .nav button{
+      width:32px; height:32px; border:1px solid var(--line); border-radius:50%; background:var(--bg-1); color:var(--ink-hi);
+      font-size:13px; cursor:pointer;
+    }
+    footer .nav button:hover{border-color:var(--line-strong)}
+
+    .navigator-backdrop{
+      position:fixed; inset:0; z-index:30; border:0; background:rgba(2,4,7,.72); opacity:0;
+      pointer-events:none; transition:opacity .24s ease; backdrop-filter:blur(3px);
+    }
+    .slide-navigator{
+      position:fixed; inset:0 0 0 auto; z-index:40; width:min(380px,92vw); display:flex; flex-direction:column;
+      border-left:1px solid var(--line-strong); background:linear-gradient(160deg,#0d131b,#070b10 68%);
+      box-shadow:-24px 0 60px rgba(0,0,0,.46); transform:translateX(102%);
+      visibility:hidden; transition:transform .28s ease,visibility 0s linear .28s;
+    }
+    body.navigator-open .navigator-backdrop{opacity:1; pointer-events:auto}
+    body.navigator-open .slide-navigator{transform:none; visibility:visible; transition:transform .28s ease}
+    .navigator-heading{
+      flex:none; padding:72px 18px 14px; border-bottom:1px solid var(--line);
+      background:linear-gradient(180deg,rgba(13,19,27,.98),rgba(13,19,27,.92));
+    }
+    .navigator-heading h2{margin:0; font-size:19px; letter-spacing:-.01em}
+    .navigator-heading p{display:flex; justify-content:space-between; gap:12px; margin:5px 0 0; color:var(--ink-low); font-size:10.5px}
+    .navigator-search{
+      display:grid; grid-template-columns:18px minmax(0,1fr) 24px; gap:7px; align-items:center;
+      margin-top:12px; padding:7px 8px; border:1px solid var(--line); border-radius:8px; background:#090e14;
+    }
+    .navigator-search:focus-within{border-color:rgba(167,169,255,.62); box-shadow:0 0 0 2px rgba(121,124,239,.1)}
+    .navigator-search>svg{width:15px; height:15px; fill:none; stroke:var(--ink-low); stroke-width:1.6; stroke-linecap:round}
+    .navigator-search input{
+      width:100%; min-width:0; border:0; outline:0; background:transparent; color:var(--ink-hi);
+      font:500 12px/1.4 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    }
+    .navigator-search input::placeholder{color:var(--ink-low)}
+    .navigator-search input::-webkit-search-cancel-button{display:none}
+    .navigator-search button{
+      display:grid; place-items:center; width:24px; height:24px; padding:0; border:0; border-radius:5px;
+      background:transparent; color:var(--ink-low); font-size:17px; line-height:1; cursor:pointer;
+    }
+    .navigator-search button:hover{background:rgba(255,255,255,.07); color:var(--ink-hi)}
+    .navigator-search button:focus-visible{outline:2px solid var(--brand-300); outline-offset:1px}
+    .navigator-empty{margin:26px 12px; color:var(--ink-mid); font-size:12.5px; line-height:1.55; text-align:center}
+    .navigator-list{
+      flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; padding:12px 14px 24px;
+      scrollbar-gutter:stable; scrollbar-color:var(--line-strong) transparent;
+    }
+    .navigator-item[hidden],.navigator-search button[hidden],.navigator-empty[hidden]{display:none!important}
+    .navigator-item{
+      display:block; width:100%; margin:0 0 10px; padding:7px; border:1px solid var(--line); border-radius:11px;
+      background:rgba(8,12,16,.74); color:var(--ink-hi); text-align:left; cursor:pointer;
+      transition:border-color .16s,background .16s,transform .16s;
+    }
+    .navigator-item:hover{border-color:var(--line-strong); background:#111821; transform:translateY(-1px)}
+    .navigator-item:focus-visible{outline:2px solid var(--brand-300); outline-offset:2px}
+    .navigator-item.active{border-color:rgba(167,169,255,.58); background:rgba(121,124,239,.12)}
+    .navigator-thumb{
+      position:relative; display:block; width:100%; aspect-ratio:16/9; overflow:hidden; border:1px solid rgba(255,255,255,.08);
+      border-radius:7px; background:#05070a;
+    }
+    .navigator-thumb::before{
+      content:""; position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+      background-size:56px 56px;
+    }
+    .navigator-canvas{position:absolute; inset:0 auto auto 0; width:1280px; height:720px; transform:scale(var(--navigator-scale,.25)); transform-origin:top left; pointer-events:none}
+    .navigator-slide{
+      position:absolute; inset:0; width:1280px; height:720px; display:grid; align-items:center; justify-items:stretch;
+      padding:88px 77px 104px; overflow:hidden; background:transparent;
+    }
+    .navigator-slide h1{font-size:67.2px}
+    .navigator-slide h2{font-size:40px}
+    .navigator-slide .lead{font-size:17.9px}
+    .navigator-meta{display:grid; grid-template-columns:30px minmax(0,1fr); gap:8px; align-items:start; padding:8px 3px 2px}
+    .navigator-number{color:var(--brand-300); font:700 10px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace}
+    .navigator-copy{min-width:0}
+    .navigator-title{display:block; overflow:hidden; color:var(--ink-hi); font-size:11.5px; font-weight:700; line-height:1.35; text-overflow:ellipsis; white-space:nowrap}
+    .navigator-section{display:block; overflow:hidden; margin-top:2px; color:var(--ink-low); font-size:9px; line-height:1.35; text-overflow:ellipsis; text-transform:uppercase; white-space:nowrap}
+    .navigator-match{display:none}
+    .navigator-list.has-query .navigator-item{display:grid; grid-template-columns:112px minmax(0,1fr); gap:10px; align-items:start; padding:7px}
+    .navigator-list.has-query .navigator-thumb{width:112px; align-self:start}
+    .navigator-list.has-query .navigator-meta{grid-template-columns:24px minmax(0,1fr); gap:6px; padding:3px 2px 2px}
+    .navigator-list.has-query .navigator-title,.navigator-list.has-query .navigator-section{white-space:normal}
+    .navigator-list.has-query .navigator-title{display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; text-overflow:clip}
+    .navigator-list.has-query .navigator-section{display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; text-overflow:clip}
+    .navigator-list.has-query .navigator-match{
+      display:-webkit-box; overflow:hidden; margin-top:7px; color:var(--ink-mid); font-size:9.5px; line-height:1.45;
+      -webkit-box-orient:vertical; -webkit-line-clamp:3;
+    }
+
+    @media (max-width:900px){
+      header{padding-inline:20px}
+      header>span{display:none}
+      .header-search span{display:none}
+      .grid.cols-3{grid-template-columns:1fr 1fr}
+      .split{grid-template-columns:1fr; gap:22px}
+      .prompt-preflight .split{grid-template-columns:1fr}
+      .instruction-files{grid-template-columns:1fr}
+      .contract-grid{grid-template-columns:1fr}
+      .contract-note{display:block}
+      .contract-note p+p{margin-top:8px}
+      .package-flow{grid-template-columns:1fr; gap:10px}
+      .package-arrow{transform:rotate(90deg)}
+      .package-note{display:block}
+      .package-note a{display:inline-block; margin-top:10px}
+      .slide{padding:80px 24px 96px; overflow-y:auto; align-items:start}
+      footer .hint{display:none}
+    }
+    @media (prefers-reduced-motion:reduce){
+      .slide,.slide.active,footer .dots button,.navigator-backdrop,.slide-navigator,.navigator-item{transition:none}
+      body.navigator-open .slide-navigator{transition:none}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <b>Dekalabs · Playbook interno</b>
+    <span>Producción web y audiovisual con IA</span>
+    <div class="header-tools">
+      <button class="header-search" id="navigator-search-toggle" type="button" aria-expanded="false" aria-controls="slide-navigator" aria-label="Buscar en las diapositivas" title="Buscar diapositivas (⌘K)">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.75"></circle><path d="m10.5 10.5 3.25 3.25"></path></svg><span>Buscar</span>
+      </button>
+      <button class="counter" id="navigator-toggle" type="button" aria-expanded="false" aria-controls="slide-navigator" aria-label="Abrir índice de diapositivas" title="Abrir índice de diapositivas">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.75" y="1.75" width="5" height="4" rx=".8"></rect><rect x="9.25" y="1.75" width="5" height="4" rx=".8"></rect><rect x="1.75" y="10.25" width="5" height="4" rx=".8"></rect><rect x="9.25" y="10.25" width="5" height="4" rx=".8"></rect></svg>
+        <b id="current">01</b> / <span id="total">49</span>
+      </button>
+    </div>
+  </header>
+
+  <main id="deck">
+
+    <!-- 1 · Portada -->
+    <section class="slide active">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> Playbook interno <span>· equipo técnico y de diseño</span></p>
+        <h1>Producción web y<br>audiovisual con IA, <em>para<br>cualquier producto o cliente</em>.</h1>
+        <p class="lead">Guía para el equipo y fuente de contexto para la IA: explica cómo producir, verificar y mantener webs, presentaciones, vídeos y capturas para cualquier producto o marca blanca. Cada proyecto define su propia <code>[[PROJECT_ROOT]]/</code>; para construir el paquete completo, el agente debe leer este playbook y recibir el prompt maestro del <strong>Anexo · 0</strong>.</p>
+        <div class="steps" style="margin-top:34px">
+          <a class="step" href="https://opx-response-landing.dekalabs.workers.dev/" target="_blank" rel="noopener noreferrer">Ejemplo en producción → <code>opx-response-landing.dekalabs.workers.dev</code></a>
+          <a class="step" href="#annex-kickoff" data-slide-target="annex-kickoff">Arrancar un proyecto con IA → <code>Anexo · 0</code></a>
+        </div>
+        <div class="steps" style="margin-top:12px">
+          <span class="step"><kbd>→</kbd> avanzar</span>
+          <span class="step"><kbd>←</kbd> volver</span>
+          <span class="step"><kbd>Home</kbd>/<kbd>End</kbd> extremos</span>
+          <span class="step"><kbd>⌘K</kbd>/<kbd>Ctrl+K</kbd> buscar y abrir el índice</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 · Preparar el Mac -->
+    <section class="slide models-slide">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> 00 · Antes de empezar — Mac y modelos</p>
+        <h2 style="margin-bottom:10px">Prepara el Mac y <em>elige el modelo adecuado para cada tarea</em>.</h2>
+        <p class="lead" style="margin:0">En el Mac solo se instalan los clientes. Después, se inicia sesión y se comprueba qué modelos ofrece cada cuenta en ese momento.</p>
+        <div class="split" style="margin-top:14px; gap:28px">
+          <div>
+            <pre><i># clientes y base local</i>
+Codex app + CLI       <b>codex --version</b>
+Claude Code           <b>claude --version</b>
+Xcode Command Line Tools + Git
+Node.js 22+ + npm
+Python 3.11 + uv
+FFmpeg + ffprobe</pre>
+            <ul class="checks" style="margin-top:10px">
+              <li><strong>Fable, Opus y Sonnet son modelos de Claude</strong>, no tres aplicaciones que instalar. Comprueba qué modelos ofrece realmente cada cuenta y cada interfaz.</li>
+              <li><strong>Autenticación sin exponer secretos</strong>: inicia sesión en Codex, Claude y cualquier proveedor alternativo que deba acceder al proyecto.</li>
+              <li><strong>Dependencias por proyecto</strong>: Playwright, Remotion y librerías web se instalan desde sus <code>package.json</code>, no como copias globales.</li>
+            </ul>
+          </div>
+          <div class="grid cols-2 compact" style="margin-top:0; gap:9px">
+            <div class="card" style="--dot:#a7a9ff"><h3><i></i>Diseño · referencia + Fable/Codex</h3><p><strong>Referencia aprobada siempre</strong>: Figma, capturas, branding o web. <strong>Fable</strong> para explorar y criticar la dirección visual; <strong>Codex</strong> para implementarla, hacerla responsive y comprobarla en navegador.</p></div>
+            <div class="card" style="--dot:#f5a742"><h3><i></i>Claude · Opus / Sonnet</h3><p><strong>Opus</strong>: arquitectura, investigación y auditoría profunda. <strong>Sonnet</strong>: implementación diaria. Si la herramienta admite flujos por fases, separa la planificación de la ejecución y conserva la misma evidencia.</p></div>
+            <div class="card" style="--dot:#37d3c4"><h3><i></i>GPT-5.6 · Sol / Terra / Luna</h3><p><strong>Sol</strong>: máxima capacidad. <strong>Terra</strong>: equilibrio entre capacidad y coste. <strong>Luna</strong>: trabajo repetible y de alto volumen. Usa solo las variantes disponibles en la interfaz o API autorizada.</p></div>
+            <div class="card" style="--dot:#8fc6ff"><h3><i></i>Kimi K3 · opcional</h3><p>Alternativa para trabajo largo, contexto extenso o una segunda opinión. Úsalo solo si el acceso y el rendimiento actual lo justifican.</p></div>
+          </div>
+        </div>
+        <p class="prompt-ref"><strong>Diseño:</strong> adjunta Figma, capturas, branding o URL; usa <strong>Fable</strong> para dirección visual, <strong>Codex</strong> para implementación y QA, o el relevo <strong>Fable → Codex</strong>. <a href="https://learn.chatgpt.com/use-cases/frontend-designs" target="_blank" rel="noopener noreferrer">Flujo oficial ↗</a></p>
+        <p class="prompt-ref"><strong>Criterio actual:</strong> <a href="https://developers.openai.com/api/docs/guides/latest-model" target="_blank" rel="noopener noreferrer">Codex</a> · <a href="https://platform.claude.com/docs/en/about-claude/models/overview" target="_blank" rel="noopener noreferrer">Claude</a> · <a href="https://platform.kimi.ai/docs/introduction" target="_blank" rel="noopener noreferrer">Kimi K3</a> · <a href="https://www.designarena.ai/leaderboard" target="_blank" rel="noopener noreferrer">Design Arena</a> · <a href="#annex-operational-7-11" data-slide-target="annex-operational-7-11">auditar Mac y modelos → 7.11</a>.</p>
+      </div>
+    </section>
+
+    <!-- 2 · El modelo -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> 01 · El modelo</p>
+        <h2>Todos los proyectos parten de <em>la misma estructura</em>.</h2>
+        <p class="lead">En cada proyecto cambian los datos, la marca y los textos. La organización de los ficheros y la forma de trabajar se mantienen.</p>
+        <div class="grid cols-3">
+          <div class="card" style="--dot:#37d3c4"><h3><i></i>Datos canónicos</h3><p>Un único JSON fija nombres, tiempos y estados. La web y el vídeo incorporan esos datos, y las capturas se comprueban contra ellos.</p></div>
+          <div class="card" style="--dot:#797cef"><h3><i></i>Web con presentación</h3><p>Una landing narrativa que, con una tecla, se convierte en la presentación de la reunión. La misma web sirve para navegar y para exponer.</p></div>
+          <div class="card" style="--dot:#f5a742"><h3><i></i>Escena 3D (opcional)</h3><p>Cuando ver el proceso ayuda a entender el producto, la escena reproduce el caso real. No se utiliza como decoración.</p></div>
+          <div class="card" style="--dot:#8fc6ff"><h3><i></i>Capturas de producto</h3><p>Pantallas reales del producto con el caso canónico cargado. Cuando cambia la interfaz, un comando vuelve a generarlas.</p></div>
+          <div class="card" style="--dot:#5cd58c"><h3><i></i>Vídeo locutado</h3><p>Un manifiesto define el guion, los tiempos y la voz. Para actualizar el vídeo, se modifica ese fichero y se vuelve a renderizar.</p></div>
+          <div class="card" style="--dot:#f05a4f"><h3><i></i>Verificación y despliegue</h3><p>La landing y el vídeo incluyen sus propias comprobaciones. <code>finish.sh</code> audita la web y prepara solo los ficheros publicables.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2b · Mapa de carpetas -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> 01 · El modelo — mapa de carpetas</p>
+        <h2>Guardamos la información en un único lugar y <em>generamos el resto desde ahí</em>.</h2>
+        <div class="tree-map">
+          <pre class="tree">[[PROJECT_ROOT]]/
+├── <span class="automation">.gitignore · AGENTS.md · CLAUDE.md</span> reglas del repositorio
+├── <span class="knowledge">README.md · COPY.md</span>               contexto y narrativa
+├── <span class="knowledge">data/[[CANONICAL_CASE_FILE]]</span>       caso canónico
+├── <span class="knowledge">brand/</span>                            marca, fuentes y tokens
+├── landing/
+│   ├── index.html · styles.css · motion.js · signal-field.js
+│   ├── <span class="automation">sync-data.mjs · audit.mjs · package.json</span>
+│   └── <span class="output">assets/</span>                       bundles y capturas aprobadas
+├── <span class="automation">capture/web/ · capture/[[PRODUCT_CAPTURE_ADAPTER]]/</span>
+├── <span class="output">captures/</span>                         originales ignorados
+├── video/
+│   ├── <span class="knowledge">content/ · assets/licenses/</span>     guion y evidencias
+│   ├── <span class="automation">src/ · scripts/ · voice/ · tests/</span>
+│   └── <span class="output">build/ · out/ · dist/</span>          resultados no versionados
+├── <span class="automation">deploy/make-qr.py</span>
+├── <span class="automation">wrangler.jsonc</span>                    entorno de desarrollo
+├── <span class="output">deploy/dist/</span>                    paquete publicable
+└── <span class="automation">finish.sh</span>                       auditoría + empaquetado</pre>
+          <div class="tree-notes">
+            <div class="card" style="--dot:#37d3c4"><h3><i></i>Raíz e información</h3><p><code>[[PROJECT_ROOT]]/</code> se decide al arrancar: <code>projects/mi-producto/</code> o <code>clients/mi-cliente/marketing/</code>. Dentro se guardan las fuentes aprobadas de producto, marca, textos y datos.</p></div>
+            <div class="card" style="--dot:#a7a9ff"><h3><i></i>Automatización</h3><p>Scripts, código y pruebas convierten esas fuentes en web, capturas, vídeo y paquete de despliegue.</p></div>
+            <div class="card" style="--dot:#f5a742"><h3><i></i>Entregas generadas</h3><p>Los comandos vuelven a generar las capturas, los renders y el paquete publicable. Solo se versionan los ficheros aprobados.</p></div>
+            <p class="tree-flow"><strong>Flujo:</strong> información aprobada → automatización → entregas → auditoría → publicación.</p>
+            <p class="prompt-ref"><strong>Prompts EN:</strong> <a href="#annex-kickoff" data-slide-target="annex-kickoff">contexto · 0</a> · <a href="#annex-operational-7-14" data-slide-target="annex-operational-7-14">repositorio + .gitignore · 7.14</a> · <a href="#annex-operational-7-15" data-slide-target="annex-operational-7-15">entorno de desarrollo · 7.15</a>.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2c · Gitignore -->
+    <section class="slide">
+      <div class="slide-inner split">
+        <div>
+          <p class="eyebrow"><i></i> 01 · El modelo — repositorio</p>
+          <h2>Versiona las fuentes; <em>excluye secretos y resultados regenerables</em>.</h2>
+<pre class="copyable" data-copy-label=".gitignore" style="font-size:8.2px;line-height:1.1;margin-top:8px"># macOS and editors
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+*.pem
+*.key
+
+# Dependencies, caches and reports
+node_modules/
+.npm/
+.cache/
+.wrangler/
+playwright-report/
+test-results/
+coverage/
+*.log
+
+# Regenerable web and media outputs
+landing/assets/vendor/
+captures/
+video/build/
+video/out/
+video/dist/
+deploy/dist/
+tmp/</pre>
+        </div>
+        <div>
+          <ul class="checks" style="margin-top:0">
+            <li><strong>Sí se versiona</strong>: código fuente, datos y textos aprobados, configuración, <code>package.json</code>, lockfiles, <code>wrangler.jsonc</code>, licencias y recursos finales que consume la web.</li>
+            <li><strong>No se versiona</strong>: credenciales, variables locales, dependencias instaladas, cachés, capturas originales, renders y <code>deploy/dist/</code>.</li>
+            <li><strong>Se documentan los secretos necesarios</strong> en <code>.env.example</code> o <code>.dev.vars.example</code>, con nombres y propósito, pero sin valores reales.</li>
+            <li><strong>Antes de subir cambios</strong>: revisa <code>git status --short</code>, comprueba exclusiones dudosas con <code>git check-ignore -v &lt;ruta&gt;</code> y ejecuta el detector de secretos aprobado por el equipo.</li>
+            <li><strong>Ajusta la plantilla al proyecto</strong>: nunca ignores una carpeta que contenga fuentes necesarias ni confíes en <code>.gitignore</code> para retirar un secreto que ya está en el historial.</li>
+          </ul>
+          <p class="prompt-ref"><a href="#annex-operational-7-14" data-slide-target="annex-operational-7-14"><strong>Crear o revisar el repositorio y su .gitignore → Anexo operativo · 7.14</strong></a></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2d · Repositorio y entorno de desarrollo -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> 01 · El modelo — integración continua</p>
+        <h2>Cada commit en <code>main</code> actualiza <em>solo el entorno de desarrollo protegido</em>.</h2>
+        <p class="lead">El repositorio, la rama y el Worker deben pertenecer al proyecto correcto. La publicación en producción se mantiene separada y siempre requiere una autorización explícita.</p>
+        <div class="grid cols-3" style="margin-top:16px">
+          <div class="card" style="--dot:#8fc6ff"><h3><i></i>1 · Repositorio y acceso</h3><p>GitHub o GitLab, dentro de la organización autorizada. Verifica el remoto, protege <code>main</code>, aplica mínimo privilegio y exige las comprobaciones acordadas antes de integrar cambios.</p></div>
+          <div class="card" style="--dot:#f5a742"><h3><i></i>2 · Comprobar y preparar</h3><p>Cloudflare Workers Builds observa <code>main</code>. Cada push ejecuta las comprobaciones documentadas y solo prepara <code>deploy/dist/</code> si todas terminan correctamente.</p></div>
+          <div class="card" style="--dot:#5cd58c"><h3><i></i>3 · Desplegar desarrollo</h3><p>El resultado se publica en <code>[[PROJECT_SLUG]]-dev</code> y <code>[[DEV_SUBDOMAIN]]</code>. Cloudflare Access limita la entrada al equipo y se verifica que la URL sirve el SHA esperado.</p></div>
+        </div>
+        <div class="callout" style="margin-top:16px"><strong>Límite obligatorio:</strong> el dominio y el Worker de producción no forman parte de este flujo. Un fallo conserva la última versión válida de desarrollo; no se copian secretos al repositorio ni se muestran en registros.</div>
+        <p class="prompt-ref"><a href="#annex-operational-7-15" data-slide-target="annex-operational-7-15"><strong>Configurar y demostrar el despliegue de desarrollo → Anexo operativo · 7.15</strong></a> · <a href="https://developers.cloudflare.com/workers/ci-cd/builds/git-integration/" target="_blank" rel="noopener noreferrer">Git integration ↗</a> · <a href="https://developers.cloudflare.com/workers/configuration/routing/workers-dev/" target="_blank" rel="noopener noreferrer">proteger workers.dev con Access ↗</a>.</p>
+      </div>
+    </section>
+
+    <!-- 2e · Instrucciones para agentes -->
+    <section class="slide">
+      <div class="slide-inner split">
+        <div>
+          <p class="eyebrow"><i></i> 01 · El modelo — instrucciones para agentes</p>
+          <h2>Dos archivos explican <em>cómo producir el paquete completo</em>.</h2>
+          <p class="lead"><code>AGENTS.md</code> es el contrato común de este proyecto web y audiovisual. Para no mantener las reglas dos veces, <code>CLAUDE.md</code> puede ser un enlace simbólico relativo a ese archivo o un adaptador breve si Claude necesita indicaciones propias.</p>
+          <pre style="margin-top:18px">[[PROJECT_ROOT]]/
+├── <b>AGENTS.md</b>                 <i># contrato canónico del paquete</i>
+├── CLAUDE.md                <i># enlace relativo o adaptador breve</i>
+├── <span class="knowledge">COPY.md</span>                     <i># textos aprobados</i>
+├── <span class="knowledge">data/</span>                       <i># caso canónico y validación</i>
+├── <span class="automation">landing/</span>                    <i># web + modo presentación</i>
+├── <span class="automation">capture/</span>                    <i># generación de capturas</i>
+├── <span class="automation">video/</span>                      <i># vídeo locutado opcional</i>
+├── <span class="output">deploy/</span>                     <i># paquete publicable</i>
+└── <span class="automation">finish.sh</span>                   <i># auditoría + empaquetado</i></pre>
+        </div>
+        <div>
+          <ul class="checks" style="margin-top:0">
+            <li><strong>Propósito y alcance</strong>: landing, presentación, datos, capturas, 3D opcional, vídeo opcional y despliegue.</li>
+            <li><strong>Fuentes de verdad</strong>: producto, marca o cliente, <code>COPY.md</code> y el JSON canónico, con un orden claro de autoridad.</li>
+            <li><strong>Reglas de generación</strong>: qué se edita, qué se vuelve a generar y qué entregables se versionan.</li>
+            <li><strong>Comandos y pruebas</strong>: validación de datos, <code>npm run build</code>, <code>npm run check</code>, capturas, vídeo y <code>finish.sh</code>.</li>
+            <li><strong>Permisos</strong>: ningún secreto, commit, push, publicación o gasto externo sin autorización expresa.</li>
+            <li><strong>Una sola fuente de verdad</strong>: <code>AGENTS.md</code> conserva las reglas; <code>CLAUDE.md</code> solo enlaza a él o añade diferencias verificadas.</li>
+            <li><strong>Sin reglas anidadas por defecto</strong>: solo añade otro <code>AGENTS.md</code> si una carpeta necesita normas realmente distintas.</li>
+          </ul>
+          <p class="prompt-ref"><strong>A continuación:</strong> plantillas completas para copiar y prompts independientes para pedir a la IA que cree cada fichero.</p>
+          <p class="prompt-ref"><a href="#annex-operational-7-10" data-slide-target="annex-operational-7-10"><strong>Crear o normalizar ambos archivos en una sola petición → Anexo operativo · 7.10</strong></a></p>
+          <p class="prompt-ref">Fuente: <a href="https://developers.openai.com/codex/guides/agents-md" target="_blank" rel="noopener noreferrer">OpenAI Docs · Custom instructions with AGENTS.md</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2f · Plantillas AGENTS.md y CLAUDE.md -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> 01b · Archivos listos para copiar</p>
+        <h2 style="margin-bottom:10px">Copia estas plantillas <em>en la raíz del paquete</em>.</h2>
+        <p class="lead" style="margin:0">Sustituye los <code>[[PLACEHOLDERS]]</code> con datos reales. Los botones copian Markdown limpio, sin etiquetas ni controles de la presentación.</p>
+        <div class="instruction-files">
+          <div class="agents-file">
+<pre class="copyable" data-copy-label="AGENTS.md"># Web and audiovisual production with AI
+
+This project produces the white-label web-and-media package for
+[[PRODUCT_NAME]] under [[PROJECT_ROOT]]. The landing, presentation,
+captures, optional 3D scene, optional video and deployment package must
+describe the same approved product and canonical case.
+
+## Scope
+
+- Work inside [[PROJECT_ROOT]] unless the task explicitly expands scope.
+- Preserve valid existing work and make the smallest coherent change.
+- Do not add rules outside this web-and-media package.
+
+## Source order
+
+Read and resolve conflicts in this order:
+1. Applicable parent repository instructions.
+2. This AGENTS.md and the project README.
+3. Product sources: [[PRODUCT_SOURCES]].
+4. Brand sources and client configuration: [[BRAND_SOURCES]].
+5. Approved copy in COPY.md.
+6. Canonical case in data/[[CANONICAL_CASE_FILE]].
+7. Existing target source files.
+8. [[REFERENCE_PROJECT_ROOT_OR_NONE]] for architecture and quality only;
+   never use it as product truth, copy, brand or feature evidence.
+
+## Project map
+
+- COPY.md — approved narrative, terminology, claims and CTAs.
+- .gitignore — repository-specific secret, cache and generated-output boundary.
+- data/ — canonical JSON, schema notes and dependency-free validation.
+- landing/ — responsive web, presentation mode, local bundles and audit.
+- capture/ — reproducible product capture tools and manifests.
+- captures/ — generated originals; do not edit them by hand.
+- video/ — optional manifest-driven Remotion/TTS workflow and licences.
+- deploy/dist/ — generated publishable files only.
+- wrangler.jsonc — versioned configuration for the isolated development Worker.
+- finish.sh — final audit and deployment-package preparation.
+
+## Working rules
+
+- Keep one canonical JSON; generated copies are read-only.
+- Write natural es-ES using approved product and client terminology.
+- Do not invent claims, metrics, integrations, states or workflows.
+- Use local assets and bundles; no CDN or unexpected runtime request.
+- Keep unfinished 3D, video or new sections behind a named flag set to false.
+- Regenerate captures, bundles and renders with documented commands;
+  never retouch generated evidence manually.
+- Add a nested AGENTS.md only for genuine directory-specific differences.
+- Keep main connected only to the protected development Worker; production is a
+  separate, explicitly authorized promotion.
+
+## Verification
+
+- Run `node data/validate.mjs` when canonical data changes.
+- From `landing/`, run `npm run build` and `npm run check` after web changes.
+- Verify requested viewport, state and deterministic time with screenshots.
+- Follow capture/*/README.md and video/README.md when those components exist.
+- Run `./finish.sh` only when preparing the publishable package.
+- Before Git operations, inspect `git status --short`; verify ignored paths with
+  `git check-ignore -v` and run the approved secret scanner.
+- Report commands, exit codes, evidence paths and a done/not-done verdict.
+
+## Code Review Rules
+
+- Request an independent review when a feature closes or after three verified
+  rounds, whichever happens first; always review before merge or publication.
+- The reviewer starts from the acceptance criteria, sources, diff and evidence
+  in a fresh context. The producing agent's summary is context, not proof.
+- For high-impact work, review product/content, design/UX/accessibility and
+  engineering/QA in parallel, then merge findings into one evidence-led list.
+- The producing agent fixes blockers; an independent reviewer verifies them.
+
+## Permissions
+
+- Never expose or request secrets when an authenticated local session suffices.
+- Do not commit, push, publish, deploy, buy assets or use paid services unless
+  the current request explicitly authorizes that exact action.</pre>
+          </div>
+          <div class="claude-file">
+<pre class="copyable" data-copy-label="CLAUDE.md"># Claude project instructions
+
+Before any work, read and follow `./AGENTS.md`. It is the canonical contract
+for scope, source order, project structure, commands, generated files,
+verification and permissions.
+
+If the current directory contains a nested `AGENTS.md`, read it after the root
+file and apply only its directory-specific differences.
+
+Do not duplicate, weaken or reinterpret AGENTS.md here.
+
+## Claude-specific additions
+
+- None. Add only verified Claude-specific behavior that cannot live in
+  AGENTS.md.</pre>
+            <div class="card" style="--dot:#37d3c4"><h3><i></i>Qué adjuntar al crear el proyecto</h3><p>Documentación de producto, configuración del cliente, guía de marca, logos y activos aprobados, JSON canónico o fuentes para construirlo, referencia arquitectónica opcional y comandos existentes.</p></div>
+            <p class="prompt-ref"><strong>Una sola fuente:</strong> si Claude no necesita reglas propias y el entorno conserva enlaces simbólicos, ejecuta desde <code>[[PROJECT_ROOT]]</code>: <code>ln -s AGENTS.md CLAUDE.md</code>. Si no, usa el adaptador superior.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2e · Prompts para crear archivos de agentes -->
+    <section class="slide prompt-examples agent-file-prompts">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> 01c · Prompts para crear los archivos</p>
+        <h2 style="margin-bottom:10px">Pide cada archivo <em>con su función exacta</em>.</h2>
+        <div class="grid cols-2" style="margin-top:14px">
+<pre class="prompt en small">Outcome
+Create [[PROJECT_ROOT]]/AGENTS.md as the canonical agent contract for
+the [[PRODUCT_NAME]] web-and-media package.
+
+Inputs
+- Project/product/root: [[PROJECT_NAME]], [[PRODUCT_NAME]], [[PROJECT_ROOT]].
+- Product sources: [[PRODUCT_SOURCES]].
+- Brand/client sources: [[BRAND_SOURCES]].
+- Canonical case file: [[CANONICAL_CASE_FILE]].
+- Reference project: [[REFERENCE_PROJECT_ROOT_OR_NONE]].
+- Existing commands/docs: [[PROJECT_COMMANDS_AND_DOCS]].
+
+Input gate
+Stop if a placeholder remains, the project root cannot be read or the
+source/command authority is contradictory.
+
+Source order
+Read parent repository instructions, this playbook, project docs and
+commands, product/brand/client sources, existing COPY.md and canonical
+data, then the optional reference for architecture only.
+
+Work and acceptance
+Write one concise root AGENTS.md specifically for production of the
+landing, presentation, canonical data, captures, optional 3D/video and
+deployable package. Define scope, source order, project map, editable vs
+generated files, natural es-ES/content rules, local-asset constraint,
+feature flags, verified commands, visual evidence and authorization
+boundaries. Do not add rules from unrelated workspaces. Do not
+create nested instruction files unless a verified conflict requires one.
+Ensure every path and command exists or is clearly conditional.
+
+Return and permissions
+Return the created file, sources used, validation performed and any
+unresolved conflict. Do not edit CLAUDE.md, install, commit, push or publish.</pre>
+<pre class="prompt en small">Outcome
+Create [[PROJECT_ROOT]]/CLAUDE.md as either a relative symbolic link to the
+canonical [[PROJECT_ROOT]]/AGENTS.md contract or a thin adapter to it.
+
+Inputs
+- Project/root: [[PROJECT_NAME]], [[PROJECT_ROOT]].
+- Canonical instructions: [[PROJECT_ROOT]]/AGENTS.md.
+- Verified Claude-only differences: [[CLAUDE_SPECIFIC_DIFFERENCES_OR_NONE]].
+- Prefer a symbolic link when possible: [[PREFER_SYMLINK_YES_OR_NO]].
+
+Input gate
+Stop if a placeholder remains, AGENTS.md cannot be read or a proposed
+Claude-specific rule contradicts it. NONE is valid only for the *_OR_NONE input.
+
+Source order
+Read parent repository instructions, root AGENTS.md, any applicable
+nested AGENTS.md and existing CLAUDE.md.
+
+Work and acceptance
+If symbolic links are preferred, the Claude-only differences are NONE and
+the repository and environment preserve links, create the relative link
+`CLAUDE.md -> AGENTS.md`. Verify it with `test -L CLAUDE.md`, `readlink
+CLAUDE.md` and a readable resolved target. Otherwise create a short adapter
+that tells Claude to read the root and applicable nested AGENTS.md files.
+AGENTS.md owns scope, sources, architecture, commands, generated files,
+verification and permissions. Add only the verified differences; do not
+duplicate commands, directory maps, product rules or authorization boundaries.
+
+Return and permissions
+Return the selected strategy, created link or file, resolution/conflict checks
+and any portability limitation. Do not edit AGENTS.md, install, commit, push or
+publish.</pre>
+        </div>
+        <p class="prompt-ref"><strong>Una sola petición para crear o normalizar ambos:</strong> <a href="#annex-operational-7-10" data-slide-target="annex-operational-7-10">abrir el prompt operativo · 7.10 →</a></p>
+      </div>
+    </section>
+
+    <!-- 3 · Stack -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> 02 · Stack</p>
+        <h2 style="margin-bottom:14px">Cada herramienta <em>resuelve una tarea concreta</em>.</h2>
+        <p class="lead">Sin framework de aplicación: la web abre desde un archivo local, sin CDN ni peticiones externas. Cada librería tiene una única responsabilidad.</p>
+        <div class="grid cols-3" style="margin-top:12px">
+          <div class="card" style="--dot:#a7a9ff"><h3><i></i>GSAP + ScrollTrigger + SplitText</h3><p>Animación de entrada, efectos ligados al scroll y titulares.</p></div>
+          <div class="card" style="--dot:#37d3c4"><h3><i></i>Motion</h3><p>Gestos táctiles, estados al pasar el puntero y animaciones elásticas de la presentación.</p></div>
+          <div class="card" style="--dot:#f5a742"><h3><i></i>Three.js</h3><p>La escena 3D, cuando la hay; solo renderiza mientras está a la vista.</p></div>
+          <div class="card" style="--dot:#5cd58c"><h3><i></i>esbuild</h3><p>Empaqueta el JavaScript en bundles locales minificados.</p></div>
+          <div class="card" style="--dot:#8fc6ff"><h3><i></i>Playwright</h3><p>Ejecuta la auditoría de la landing; las herramientas de <code>capture/</code> generan las capturas del producto.</p></div>
+          <div class="card" style="--dot:#f05a4f"><h3><i></i>Remotion + TTS</h3><p>El vídeo se construye con React y la voz se elige mediante muestras de prueba.</p></div>
+        </div>
+        <pre style="margin-top:8px"><i># sustituye [[PROJECT_ROOT]] por la raíz elegida para este proyecto</i>
+cd [[PROJECT_ROOT]]/landing
+npm install          <i># solo la primera vez</i>
+npm run build        <i># sync-data + bundles locales</i>
+npm run check        <i># compila y ejecuta la auditoría completa</i></pre>
+        <p class="prompt-ref" style="margin-top:8px"><strong>También puedes delegar el bloque completo a la IA:</strong> <a href="#annex-operational-7-1" data-slide-target="annex-operational-7-1">abrir el prompt exacto en inglés → Anexo operativo · 7.1</a>.</p>
+      </div>
+    </section>
+
+    <!-- 4 · Proceso -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> 03 · Proceso</p>
+        <h2>Trabajamos en ciclos cortos: <em>pedimos, comprobamos y afinamos</em>.</h2>
+        <div class="steps">
+          <span class="step" style="--step:#5053da"><b>1</b> Petición con un resultado claro</span><span class="arrow">→</span>
+          <span class="step" style="--step:#5053da"><b>2</b> La IA lee datos y código</span><span class="arrow">→</span>
+          <span class="step" style="--step:#1c9d97"><b>3</b> La IA aplica un cambio pequeño</span><span class="arrow">→</span>
+          <span class="step" style="--step:#1c9d97"><b>4</b> La IA ejecuta la auditoría y toma capturas</span><span class="arrow">→</span>
+          <span class="step" style="--step:#b97c22"><b>5</b> Revisión humana con captura</span><span class="arrow">→</span>
+          <span class="loop">↺ repetir</span>
+        </div>
+        <div class="grid cols-2 compact" style="margin-top:18px">
+          <div class="card" style="--dot:#797cef"><h3><i></i>Prompt para una ronda</h3><p>Para un cambio acotado, usa el prompt operativo correspondiente. La instrucción termina cuando entrega el resultado y su prueba.</p><p class="prompt-ref"><a href="#annex-operational-7-1" data-slide-target="annex-operational-7-1">Abrir los prompts operativos → Anexos · 7.1–7.8</a></p></div>
+          <div class="card" style="--dot:#37d3c4"><h3><i></i>Goal para varias rondas</h3><p>Cuando el trabajo necesite varias iteraciones, abre un task y empieza con <code>/goal [[OBJETIVO]]</code>. El Goal seguirá activo hasta que se cumpla la condición de finalización.</p></div>
+        </div>
+        <ul class="checks" style="margin-top:18px">
+          <li><strong>Incluye toda la configuración al crear el Goal</strong>: resultado esperado, alcance y ficheros permitidos, referencias que debe leer, hitos, pruebas, permisos y condición de finalización.</li>
+          <li><strong>Tú defines el resultado</strong> («la salida queda tapada»); la IA decide cómo conseguirlo. Pide un solo ajuste por ronda cuando necesites precisión.</li>
+          <li><strong>Cada ronda deja el proyecto listo para continuar</strong>: auditoría superada y ningún commit, push o despliegue sin autorización expresa.</li>
+          <li><strong>Mantén desactivadas las funciones incompletas</strong> mediante una constante explícita, como <code>SIGNAL_FIELDS_ENABLED</code>. Actívalas solo después de verificarlas.</li>
+        </ul>
+        <p class="prompt-ref"><strong>Prompts EN:</strong> <a href="#annex-operational-7-9" data-slide-target="annex-operational-7-9">configurar un Goal · 7.9</a> · <a href="#annex-kickoff" data-slide-target="annex-kickoff">cargar el contexto · 0</a> · <a href="#annex-operational-7-1" data-slide-target="annex-operational-7-1">operación diaria · 7.1–7.8</a> · <a href="#annex-operational-7-12" data-slide-target="annex-operational-7-12">auditoría cruzada · 7.12</a>.</p>
+      </div>
+    </section>
+
+    <!-- 4a · Auditoría cruzada -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> 03a · Auditoría cruzada</p>
+        <h2>Cada funcionalidad importante pasa por <em>una revisión independiente</em>.</h2>
+        <p class="lead">Cadencia recomendada: al cerrar una funcionalidad o cada tres rondas verificadas, lo que ocurra antes. Antes de publicar, la revisión es completa.</p>
+        <div class="package-flow">
+          <div class="package-stage" style="--stage:#797cef">
+            <span class="stage-label">1 · Activar</span>
+            <h3>Un hito observable</h3>
+            <ul class="package-list">
+              <li>Funcionalidad terminada o tres rondas/commits temáticos.</li>
+              <li>Siempre tras cambios de datos, marca, arquitectura o publicación.</li>
+              <li>El rango se fija como <code>base…head</code>; no se revisa “lo último” de forma ambigua.</li>
+            </ul>
+          </div>
+          <div class="package-arrow">→</div>
+          <div class="package-stage" style="--stage:#37d3c4">
+            <span class="stage-label">2 · Cruzar</span>
+            <h3>Otro contexto, otra especialidad</h3>
+            <ul class="package-list">
+              <li><strong>Manual</strong>: una tarea nueva revisa fuentes, diff y pruebas.</li>
+              <li><strong>En paralelo (swarm)</strong>: producto/contenido, diseño/UX y código/QA trabajan por separado.</li>
+              <li><strong>Automática</strong>: PR, etiqueta <code>feature-ready</code>, rango de commits o release.</li>
+            </ul>
+          </div>
+          <div class="package-arrow">→</div>
+          <div class="package-stage" style="--stage:#5cd58c">
+            <span class="stage-label">3 · Cerrar</span>
+            <h3>Una sola lista de hallazgos</h3>
+            <ul class="package-list">
+              <li>Un coordinador elimina duplicados y ordena por impacto y evidencia.</li>
+              <li>El agente autor corrige; el revisor confirma la corrección.</li>
+              <li>Un fallo crítico bloquea la integración o la publicación; las opiniones sin prueba, no.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="package-note">
+          <p><strong>Cruce recomendado:</strong> Fable u Opus revisan dirección visual, producto y coherencia; Codex comprueba implementación, navegador y pruebas. Ningún modelo aprueba por sí solo todo lo que acaba de crear.</p>
+          <a href="#annex-operational-7-12" data-slide-target="annex-operational-7-12">Ejecutar auditoría · 7.12 →</a>
+        </div>
+        <p class="prompt-ref"><strong>Automatización:</strong> <a href="#annex-operational-7-13" data-slide-target="annex-operational-7-13">configurar el control por funcionalidad, PR o commits · 7.13</a> · <a href="https://developers.openai.com/api/docs/guides/responses-multi-agent" target="_blank" rel="noopener noreferrer">multi-agent (beta) ↗</a> · <a href="https://learn.chatgpt.com/use-cases/github-code-reviews" target="_blank" rel="noopener noreferrer">revisión automática de PR ↗</a>.</p>
+      </div>
+    </section>
+
+    <!-- 4b · Contrato del prompt -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> 03b · Anatomía de un encargo</p>
+        <h2>Un buen prompt define <em>el resultado y también sus límites</em>.</h2>
+        <p class="lead">La IA necesita un contrato de trabajo breve y completo. Cada instrucción se expresa una vez y deja claro qué significa terminar.</p>
+        <div class="contract-grid">
+          <div class="contract-item"><b>01</b><div><h3>Outcome · Resultado</h3><p>Describe el estado final observable, no una lista de pasos sugeridos.</p></div></div>
+          <div class="contract-item"><b>02</b><div><h3>Inputs · Entradas</h3><p>Declara rutas, URLs, cliente y activos aprobados; adjunta logos, marca, Figma o capturas cuando aporten evidencia.</p></div></div>
+          <div class="contract-item"><b>03</b><div><h3>Input gate · Condiciones para empezar</h3><p>Indica qué ausencia o contradicción obliga a detenerse antes de modificar nada.</p></div></div>
+          <div class="contract-item"><b>04</b><div><h3>Source order · Orden de autoridad</h3><p>Define qué instrucciones y fuentes prevalecen cuando dos referencias discrepan.</p></div></div>
+          <div class="contract-item"><b>05</b><div><h3>Work and acceptance · Trabajo y aceptación</h3><p>Une el cambio con las pruebas, tamaños, estados y evidencias que deben superarse.</p></div></div>
+          <div class="contract-item"><b>06</b><div><h3>Return and permissions · Entrega y permisos</h3><p>Exige archivos, comandos, capturas y veredicto; limita commit, push, publicación, secretos y gastos.</p></div></div>
+        </div>
+        <div class="contract-note">
+          <p><strong>Prompt puntual:</strong> un resultado acotado en una ronda. <strong>Goal:</strong> varias rondas con hitos, pruebas de progreso y una condición verificable de finalización.</p>
+          <p><a href="https://developers.openai.com/api/docs/guides/latest-model" target="_blank" rel="noopener noreferrer">Criterios oficiales de prompting ↗</a></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4c · Preflight de un proyecto existente -->
+    <section class="slide prompt-preflight">
+      <div class="slide-inner split">
+        <div>
+          <p class="eyebrow"><i></i> 03c · Antes de editar</p>
+          <h2>Audita el proyecto <em>antes de editar</em>.</h2>
+          <p class="lead">Úsalo al heredar o retomar un repositorio. El agente inspecciona y comprueba, sin modificar ni instalar nada.</p>
+          <ul class="checks">
+            <li>Localiza las instrucciones y fuentes de verdad.</li>
+            <li>Distingue fuentes, archivos generados y entregables.</li>
+            <li>Ejecuta solo comprobaciones seguras y documentadas.</li>
+            <li>Devuelve riesgos, ausencias y el siguiente prompt en inglés.</li>
+          </ul>
+          <p class="prompt-ref"><strong>Adjunta o enlaza:</strong> proyecto, producto, cliente, marca, activos aprobados y entregables esperados.</p>
+        </div>
+<pre class="prompt en small">Outcome
+Audit the existing [[PROJECT_ROOT]] before any edit and return a
+verified readiness report for [[EXPECTED_DELIVERABLES]].
+
+Inputs
+- Project/product/root: [[PROJECT_NAME]], [[PRODUCT_NAME]], [[PROJECT_ROOT]].
+- White-label client: [[CLIENT_ID_OR_NONE]].
+- Product, brand, asset and reference sources: [[PROJECT_SOURCES]].
+- Expected deliverables: [[EXPECTED_DELIVERABLES]].
+
+Input gate
+Stop if a placeholder remains or the project root cannot be read.
+NONE is valid only for CLIENT_ID_OR_NONE. Do not stop for missing
+optional components; report them.
+
+Source order
+Read applicable AGENTS.md and CLAUDE.md files, repository documentation
+and build manifests, canonical product/client data, COPY.md and brand
+sources, existing component READMEs and scripts, then optional
+references for architecture only.
+
+Work and acceptance
+Without editing or installing anything:
+1. Map authoritative sources, generated files and data consumers.
+2. Inventory landing/presentation, capture, optional 3D/video,
+   deployment, licences and documented commands.
+3. Run documented read-only checks and non-destructive validation that
+   needs no credentials.
+4. Compare evidence with [[EXPECTED_DELIVERABLES]]; identify
+   contradictions, missing inputs, stale generated files and unsafe
+   authorization assumptions.
+5. Recommend the smallest safe next action and provide its exact
+   English prompt.
+
+Return and permissions
+Return the source-of-truth map; component status; commands and exit
+codes; risks by severity; missing inputs; the next prompt; and a
+ready/not-ready verdict. Do not edit, install, generate, commit, push,
+publish or request secrets.</pre>
+      </div>
+    </section>
+
+    <!-- 5 · Prompts editar -->
+    <section class="slide prompt-examples">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> 04 · Prompts de ejemplo — editar</p>
+        <h2>Pide <em>resultado y prueba</em>, no pasos.</h2>
+        <div class="grid cols-2" style="margin-top:20px">
+          <pre class="prompt en small">Outcome
+Set the landing hero heading to [[NEW_HEADING]] without changing
+the approved product meaning.
+
+Inputs
+- Project root: [[PROJECT_ROOT]].
+- Approved heading: [[NEW_HEADING]].
+
+Input gate
+Stop if a placeholder remains or COPY.md cannot be read.
+
+Source order
+Read repository instructions, [[PROJECT_ROOT]]/COPY.md and the
+current hero implementation.
+
+Work and acceptance
+Make the smallest source edit. Update supporting copy only when
+COPY.md requires it. From landing/, run npm run check and capture
+file:// at 1280x720 and 2000x1200.
+
+Return and permissions
+Return changed files, commands/exit codes, screenshots and verdict.
+Do not commit, push or publish.</pre>
+          <pre class="prompt en small">Outcome
+Remove the layout overlap shown in [[ATTACHED_SCREENSHOT]] at
+1440x900 while preserving the approved design.
+
+Inputs
+- Project root: [[PROJECT_ROOT]].
+- Evidence: [[ATTACHED_SCREENSHOT]].
+
+Input gate
+Stop if a placeholder remains or the screenshot lacks its viewport.
+
+Source order
+Read repository instructions, the screenshot and the affected HTML,
+CSS and responsive rules.
+
+Work and acceptance
+Reproduce first; fix the root cause with the smallest coherent edit.
+Run npm run check and verify file:// at 1280x720, 1440x900 and
+2000x1200 with no clipping or horizontal overflow.
+
+Return and permissions
+Return root cause, files, commands/exit codes, before/after captures
+and verdict. Do not commit, push or publish.</pre>
+          <pre class="prompt en small">Outcome
+Set [[JSON_PATH]] to [[NEW_VALUE]] in the canonical case and keep
+every generated consumer consistent.
+
+Inputs
+- Project root: [[PROJECT_ROOT]].
+- Canonical file/path/value: [[CANONICAL_CASE_FILE]], [[JSON_PATH]], [[NEW_VALUE]].
+
+Input gate
+Stop if a placeholder remains or NEW_VALUE has no product source.
+
+Source order
+Read repository instructions, [[PROJECT_ROOT]]/COPY.md,
+data/[[CANONICAL_CASE_FILE]] and the data build/validation scripts.
+
+Work and acceptance
+Edit only the canonical JSON; never edit embedded copies. Validate
+the data, run landing npm run build and npm run check, then inspect
+web, video and capture references for contradictory values.
+
+Return and permissions
+Return the dependency impact, files, commands/exit codes and verdict.
+Do not commit, push or publish.</pre>
+          <pre class="prompt result">→ La IA localiza los ficheros, hace el cambio mínimo,
+recompila, toma capturas en los tamaños acordados,
+supera la auditoría y te enseña el resultado.
+Tú decides si la ronda se cierra o se afina.</pre>
+        </div>
+        <p class="lead" style="margin-top:16px; font-size:.95rem">Los prompts dirigidos a la IA se escriben <strong>siempre en inglés</strong> y deben definir un trabajo real: <strong>qué cambiar</strong>, <strong>qué fuente leer</strong>, <strong>cómo demostrarlo</strong> y <strong>qué no está autorizado</strong>.</p>
+        <p class="prompt-ref"><strong>Prompts EN:</strong> <a href="#annex-operational-7-2" data-slide-target="annex-operational-7-2">aplicar un cambio · 7.2</a> · <a href="#annex-operational-7-3" data-slide-target="annex-operational-7-3">verificación independiente · 7.3</a>.</p>
+      </div>
+    </section>
+
+    <!-- 6 · Prompts II -->
+    <section class="slide prompt-examples">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> 05 · Prompts de ejemplo — escena, funciones nuevas y vídeo</p>
+        <h2>Cómo pedir <em>una escena, una sección o un vídeo</em>.</h2>
+        <div class="grid cols-2" style="margin-top:20px">
+          <pre class="prompt en small">Outcome
+Correct route collisions at ?twin-time=[[SECONDS]].
+
+Inputs
+- Project root/time: [[PROJECT_ROOT]], [[SECONDS]].
+- Before evidence: [[ATTACHED_BEFORE_CAPTURE]].
+
+Input gate
+Stop if a placeholder remains or that time is not a canonical case beat.
+
+Source order
+Read repository instructions, canonical data, scene code and the
+attached before capture for that exact beat.
+
+Work and acceptance
+Keep routes data-driven; figures must avoid obstacles. Run landing
+npm run check and capture the same time before/after at 1440 and
+2000 wide with no label or geometry clipping.
+
+Return and permissions
+Return root cause, files, checks and captures. Do not commit, push
+or publish.</pre>
+          <pre class="prompt en small">Outcome
+Add the sourced [[TOPIC]] section after [[SECTION]].
+
+Inputs
+- Project root: [[PROJECT_ROOT]].
+- Topic/position/flag: [[TOPIC]], [[SECTION]], [[FEATURE]].
+- Content/design sources: [[CONTENT_AND_DESIGN_REFERENCES]].
+
+Input gate
+Stop if a placeholder remains or the content has no approved source.
+
+Source order
+Read repository instructions, COPY.md, canonical data, brand tokens
+and the attached content/design references.
+
+Work and acceptance
+Implement the complete accessible section behind
+const [[FEATURE]]_ENABLED = false. Run landing npm run check and
+capture mobile/desktop. Enable the flag only when both pass.
+
+Return and permissions
+Return sources used, flag state, files, checks and captures. Do not
+commit, push or publish.</pre>
+          <pre class="prompt en small">Outcome
+Regenerate only the narration for scene [[SCENE_ID]].
+
+Inputs
+- Project root/scene: [[PROJECT_ROOT]], [[SCENE_ID]].
+- Review notes: [[VOICE_REVIEW_NOTES]].
+
+Input gate
+Stop if a placeholder remains or voice/licence evidence is incomplete.
+
+Source order
+Read repository instructions, video README/manifest, COPY.md,
+pronunciation guide, approved voice selection and licence evidence.
+
+Work and acceptance
+Run the documented validate and selective --scene voice command with
+--write; regenerate alignment/preview; run tests and typecheck. Do not
+render or modify the commercial master.
+
+Return and permissions
+Return commands/exit codes, changed assets and preview/report paths.
+Do not commit, push or publish.</pre>
+          <pre class="prompt en small">Outcome
+Regenerate [[CAPTURE_MATRIX]] from the canonical product case.
+
+Inputs
+- Project root/matrix: [[PROJECT_ROOT]], [[CAPTURE_MATRIX]].
+- Run/session notes: [[ENVIRONMENT_AND_SESSION_NOTES]].
+
+Input gate
+Stop if a placeholder remains, data cannot be seeded or a secret is required.
+
+Source order
+Read repository/client instructions, canonical JSON, capture scripts,
+seed notes and approved screen list. Never request a credential.
+
+Work and acceptance
+Use an existing signed-in session. Match canonical names, times and
+states; remove browser chrome/internal labels; never retouch images.
+Validate the matrix, copy approved PNGs and run landing npm run check.
+
+Return and permissions
+Return commands/exit codes, raw/selected paths and data assertions.
+Do not commit, push or publish.</pre>
+        </div>
+        <p class="lead" style="margin-top:16px; font-size:.95rem">En las escenas animadas, <code>?twin-time=[[SEGUNDOS]]</code> detiene el reloj interno y permite indicar a la IA el instante exacto que debe revisar.</p>
+        <p class="prompt-ref"><strong>Prompts completos:</strong> <a href="#annex-scene-3" data-slide-target="annex-scene-3">escena 3D · 3</a> · <a href="#annex-operational-7-2" data-slide-target="annex-operational-7-2">cambio · 7.2</a> · <a href="#annex-operational-7-5" data-slide-target="annex-operational-7-5">vídeo · 7.5</a> · <a href="#annex-operational-7-4" data-slide-target="annex-operational-7-4">capturas · 7.4</a>.</p>
+      </div>
+    </section>
+
+    <!-- 7 · Editar: mapa -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> 06 · Editar lo existente</p>
+        <h2>Qué fichero tocar <em>según el cambio</em>.</h2>
+        <p class="lead">Todas las rutas de la tabla son relativas a <code>[[PROJECT_ROOT]]/</code>; la raíz puede pertenecer a un producto o a una variante de marca blanca.</p>
+        <table>
+          <tr><th>Quiero cambiar…</th><th>Ficheros</th><th>Después</th></tr>
+          <tr><td>Textos o estructura</td><td><code>landing/index.html</code> — el guion aprobado se define en <code>COPY.md</code></td><td><code>npm run check</code></td></tr>
+          <tr><td>Estilo y adaptación</td><td><code>landing/styles.css</code>; <code>brand/tokens.css</code> documenta los tokens, hoy duplicados</td><td>sincronizar valores + <code>npm run check</code></td></tr>
+          <tr><td>Animaciones o presentación</td><td><code>landing/motion.js</code> (GSAP, diapositivas <code>.present-slide</code>, caso guiado)</td><td><code>npm run check</code></td></tr>
+          <tr><td>Escena 3D</td><td><code>landing/signal-field.js</code>; <code>signal-runtime.js</code> es la entrada del bundle</td><td><code>npm run check</code> + capturas</td></tr>
+          <tr><td>Datos del caso</td><td><code>data/[[CANONICAL_CASE_FILE]]</code>; <code>landing/sync-data.mjs</code> lo embebe</td><td><code>npm run check</code> + revisar vídeo y capturas</td></tr>
+          <tr><td>Guion o voz del vídeo</td><td><code>video/content/*.yaml</code> (manifiestos por idioma y duración)</td><td><code>cd video &amp;&amp; npm run video:validate</code> → flujo</td></tr>
+          <tr><td>Capturas de producto</td><td><code>capture/</code> contiene los scripts; los originales se guardan en <code>captures/</code></td><td>seleccionar PNG → <code>landing/assets/captures/</code> → check</td></tr>
+        </table>
+        <p class="lead" style="margin-top:18px; font-size:.95rem">Regla general: los ficheros de <code>assets/vendor/</code> se generan automáticamente y no deben editarse a mano.</p>
+        <p class="prompt-ref"><strong>Pídeselo a la IA:</strong> <a href="#annex-operational-7-2" data-slide-target="annex-operational-7-2">web · 7.2</a> · <a href="#annex-operational-7-5" data-slide-target="annex-operational-7-5">vídeo · 7.5</a> · <a href="#annex-operational-7-4" data-slide-target="annex-operational-7-4">capturas · 7.4</a>.</p>
+      </div>
+    </section>
+
+    <!-- 8 · Verificación -->
+    <section class="slide">
+      <div class="slide-inner split">
+        <div>
+          <p class="eyebrow"><i></i> 07 · Verificación</p>
+          <h2>No enseñes ni publiques <em>hasta que todo funcione</em>.</h2>
+          <p class="lead">Ejecuta <code>npm run check</code> y adjunta capturas del navegador. Si hay errores o faltan pruebas, el trabajo no está terminado.</p>
+          <pre style="margin-top:20px">npm run <b>check</b></pre>
+          <ul class="checks" style="margin-top:10px">
+            <li><strong>Bloquea</strong> si hay errores de página o consola, imágenes sin <code>alt</code>, contenido revelado que queda invisible o textos internos prohibidos.</li>
+            <li><strong>Bloquea</strong> si aparece desplazamiento horizontal, una diapositiva no cabe o el foco puede entrar en diapositivas inactivas.</li>
+            <li><strong>Bloquea</strong> si falla el caso guiado: activación, dependencias, pasos omitidos, cierre o respuesta negativa.</li>
+            <li><strong>Informa, pero hoy no bloquea</strong>: rendimiento, contraste, jerarquía de encabezados, elementos enfocables, apertura local, modo directo y <code>prefers-reduced-motion</code>.</li>
+            <li class="warn"><code>audit.mjs</code> no guarda imágenes: completa la prueba con capturas deterministas de Playwright.</li>
+          </ul>
+          <p class="prompt-ref"><a href="#annex-operational-7-3" data-slide-target="annex-operational-7-3"><strong>Ejecutar la auditoría funcional y visual → Anexo operativo · 7.3</strong></a></p>
+        </div>
+        <pre style="margin-top:10px"><i># lo que debe automatizar cada [[PROJECT_ROOT]]</i>
+npm run check
+<b>audit.mjs</b> <i>→ errores + alt + contenido visible + overflow</i>
+          <i>→ caso guiado + presentación + gestión del foco</i>
+informe   <i>→ rendimiento + contraste + headings + file://</i>
+          <i>→ reduced motion y modo presentación directo</i>
+
+<i># evidencia visual complementaria</i>
+Playwright <i>→ 390 · 768 · 1280 · 1440 · 2000 · 2560</i>
+escena     <i>→ ?twin-time=[[SEGUNDOS]]</i>
+revisión   <i>→ cada instante × cada tamaño acordado</i>
+
+<i># Si no existe landing/shots.mjs:</i>
+<i># añade o documenta el arnés de capturas del proyecto.</i></pre>
+      </div>
+    </section>
+
+    <!-- 9 · Deploy -->
+    <section class="slide">
+      <div class="slide-inner split">
+        <div>
+          <p class="eyebrow"><i></i> 08 · Publicación</p>
+          <h2>Cómo preparar y publicar <em>la versión final</em>.</h2>
+          <ul class="checks" style="margin-top:18px">
+            <li>El script de cierre (<code>finish.sh</code>) instala lo que falte, <strong>ejecuta toda la auditoría</strong> y deja en <code>deploy/dist/</code> solo lo publicable: HTML, CSS y assets.</li>
+            <li>En desarrollo, Workers Builds publica esa carpeta en <code>[[PROJECT_SLUG]]-dev</code> después de cada push aceptado en <code>main</code>; el subdominio de pruebas permanece protegido mediante Access.</li>
+            <li>Producción usa otro Worker y otra ruta. Solo se promueve una versión comprobada cuando una persona autoriza expresamente la publicación.</li>
+            <li>El generador de QR (<code>deploy/make-qr.py</code>) exige la URL final como argumento y genera SVG y PNG para compartir.</li>
+            <li class="warn">No se publica mientras alguna comprobación falle: <code>finish.sh</code> se detiene y no prepara el paquete final.</li>
+            <li class="warn">La referencia histórica usa flags de <code>wrangler</code>; los proyectos nuevos deben versionar la configuración del Worker de desarrollo sin incluir secretos.</li>
+          </ul>
+        </div>
+        <div><pre>cd [[PROJECT_ROOT]]
+<b>./finish.sh</b>              <i># auditoría + carpeta dist/</i>
+
+<i># producción: solo con autorización expresa</i>
+npx wrangler login
+npx wrangler deploy <b>--assets deploy/dist</b> \
+  --name <b>[[PROJECT_SLUG]]</b>
+
+<i># código QR para compartir</i>
+python3 -m venv deploy/.venv
+deploy/.venv/bin/pip install 'segno[pil]'
+deploy/.venv/bin/python deploy/make-qr.py \
+  https://<b>[[PROJECT_SLUG]]</b>.dekalabs.workers.dev/</pre>
+          <p class="prompt-ref"><strong>Según la autorización:</strong> <a href="#annex-operational-7-6" data-slide-target="annex-operational-7-6">preparar sin publicar · 7.6</a> · <a href="#annex-operational-7-7" data-slide-target="annex-operational-7-7">publicar tras aprobación expresa · 7.7</a>.</p></div>
+      </div>
+    </section>
+
+    <!-- 10 · Presentación -->
+    <section class="slide">
+      <div class="slide-inner split">
+        <div>
+          <p class="eyebrow"><i></i> 09 · El modo presentación</p>
+          <h2>La misma web <em>sirve como presentación</em>.</h2>
+          <ul class="checks">
+            <li>Al pulsar <kbd>P</kbd>, la web pasa a pantalla completa y muestra las secciones como diapositivas. Con <code>?mode=present</code>, se abre directamente en ese modo.</li>
+            <li>Cada diapositiva es una sección HTML real (<code>.present-slide</code>), con su capítulo y su color de acento declarados en atributos.</li>
+            <li>El contenido se adapta a la pantalla: la presentación funciona en el portátil y en el proyector sin ajustes manuales.</li>
+            <li>Las animaciones de entrada de todas las diapositivas se definen en una única función de <code>motion.js</code>.</li>
+            <li>La auditoría comprueba que todas las diapositivas caben en 1280×720 y 1920×1080.</li>
+          </ul>
+        </div>
+        <pre class="prompt en small">Outcome
+Add one presentation slide after [[CHAPTER]] using [[CONTENT]].
+
+Inputs
+- Project root: [[PROJECT_ROOT]].
+- Chapter/content: [[CHAPTER]], [[CONTENT]].
+- Approved captures: [[APPROVED_CAPTURE_ASSETS_OR_NONE]].
+
+Input gate
+Stop if a placeholder remains or CONTENT has no approved source.
+
+Source order
+Read repository instructions, COPY.md, canonical data, the existing
+data-present-* pattern and [[APPROVED_CAPTURE_ASSETS_OR_NONE]].
+
+Work and acceptance
+Use only sourced content and approved local captures. Preserve keyboard,
+focus, counter and progress behavior. Run npm run check; capture the new
+slide at 1280x720 and 1920x1080 and prove that nothing clips.
+
+Return and permissions
+Return files, commands/exit codes, captures and verdict. Do not commit,
+push or publish.</pre>
+      </div>
+    </section>
+
+    <!-- 11 · Vídeo -->
+    <section class="slide">
+      <div class="slide-inner split">
+        <div>
+          <p class="eyebrow"><i></i> 10 · Vídeo locutado</p>
+          <h2>El vídeo se define en un manifiesto y <em>se puede regenerar</em>.</h2>
+          <p class="lead">El manifiesto YAML reúne el guion, los tiempos, las escenas, la locución y las aprobaciones. Para modificar el vídeo, se actualiza ese fichero y se vuelve a renderizar.</p>
+          <ul class="checks" style="margin-top:18px">
+            <li>Locución generada por voz sintética, con <strong>muestras de prueba por escena</strong> y regeneración selectiva.</li>
+            <li>Perfiles: <code>review-1080p</code> y <code>review-4k</code> con marca de evaluación; <code>master-4k</code> produce ProRes y entregas H.264.</li>
+            <li>Las variantes —por ejemplo, una versión corta u otro caso de uso— se definen en manifiestos relacionados.</li>
+            <li class="warn">La revisión exige registrar la evaluación local de Remotion y el preset de voz; el máster añade el cierre de imagen, los derechos y la mezcla, la licencia comercial, la música y los permisos del prompt de voz.</li>
+            <li class="warn">Los pasos que generan activos requieren <code>--write</code>; <code>--check</code> inspecciona sin escribir. <code>video:validate</code> solo valida.</li>
+          </ul>
+        </div>
+        <div><pre>cd video && npm ci
+npm run video:validate -- --check
+npm run video:assets   -- --write
+npm run video:voice    -- --audition --write
+npm run video:voice    -- --all --write
+npm run video:align    -- --write
+npm run video:preview  -- --write
+npm run video:render   -- --profile review-1080p --write
+
+<i># solo tras cerrar licencias y aprobaciones del máster</i>
+REMOTION_LICENSE_CONFIRMED=1 npm run video:render \
+  -- --profile master-4k --write
+npm run video:qa      -- --check
+npm run video:package -- --write</pre>
+          <p class="prompt-ref"><a href="#annex-operational-7-5" data-slide-target="annex-operational-7-5"><strong>Revisar y renderizar el vídeo con todas las comprobaciones → Anexo operativo · 7.5</strong></a></p></div>
+      </div>
+    </section>
+
+    <!-- Tecnología del vídeo -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> 10b · Tecnología del vídeo</p>
+        <h2>Herramientas que forman <em>el flujo de vídeo</em>.</h2>
+        <div class="grid cols-3">
+          <div class="card" style="--dot:#797cef"><h3><i></i>Composición y render</h3><p>Remotion 4.0.506 — composición, animaciones y renderizado fotograma a fotograma.</p><p>React 19 + TypeScript 5.9 — componentes visuales tipados.</p></div>
+          <div class="card" style="--dot:#f5a742"><h3><i></i>Locución</h3><p>Chatterbox Multilingual es-ES — locución generada en el propio Mac con un preset elegido y documentado.</p><p>Python 3.11 + <code>uv</code> — entorno reproducible. PyTorch con MPS — inferencia acelerada en Apple Silicon.</p></div>
+          <div class="card" style="--dot:#37d3c4"><h3><i></i>Alineación y QA</h3><p>Stable-ts 2.19.1 + Whisper Medium — alineación y verificación ASR de la locución.</p><p>FFmpeg / ffprobe — mezcla, sonoridad, codificación y QA multimedia. Pruebas nativas de Node y comprobación de tipos con TypeScript.</p></div>
+          <div class="card" style="--dot:#8fc6ff"><h3><i></i>Formatos de entrega</h3><p>H.264 High — MP4 en 1080p y 4K. ProRes 422 HQ — máster técnico.</p><p>PCM de 24 bits en trabajo; AAC-LC en entrega.</p></div>
+          <div class="card" style="--dot:#5cd58c"><h3><i></i>Manifiesto e integridad</h3><p>YAML + Zod — manifiesto y esquema como fuente única del guion.</p><p>SHA-256 — caché, integridad y procedencia. Git — fuentes, manifiestos, licencias e informes.</p></div>
+          <div class="card" style="--dot:#f05a4f"><h3><i></i>Tipografía, música y SFX</h3><p>Inter (licencia OFL). Música: «Tears in Rain» de Scott Buckley, CC BY 4.0, con atribución registrada.</p><p>SFX generados en el propio equipo y documentados como CC0. Node.js 22 o posterior y npm coordinan el flujo.</p></div>
+        </div>
+        <p class="lead" style="margin-top:20px; font-size:.95rem">Todo se ejecuta en el propio Mac con Apple Silicon; no se usan servicios externos de voz ni de renderizado. Las licencias de cada activo se documentan en <code>assets/licenses/</code>.</p>
+      </div>
+    </section>
+
+    <!-- 12 · Capturas -->
+    <section class="slide">
+      <div class="slide-inner split">
+        <div>
+          <p class="eyebrow"><i></i> 11 · Capturas de producto</p>
+          <h2>Las capturas deben mostrar <em>el producto real con datos coherentes</em>.</h2>
+          <p class="lead">Las capturas no son maquetas: se toman del producto con el caso canónico cargado. Cuando cambia la interfaz, un comando las vuelve a generar.</p>
+          <ul class="checks">
+            <li>Los mismos nombres, horas y estados que en la web y el vídeo.</li>
+            <li>Sin rótulos internos, avisos de entorno de pruebas ni marcos de navegador.</li>
+            <li>Los adaptadores declarados en <code>capture/</code> generan originales y manifiestos en <code>captures/</code>, que el repositorio debe ignorar.</li>
+            <li>Solo se versionan los PNG aprobados de <code>landing/assets/captures/</code>; si cambian, se vuelven a generar en lugar de retocarlos.</li>
+          </ul>
+          <p class="prompt-ref"><a href="#annex-operational-7-4" data-slide-target="annex-operational-7-4"><strong>Regenerar y comprobar las capturas → Anexo operativo · 7.4</strong></a></p>
+        </div>
+        <div class="card" style="--dot:#f5a742; padding:24px">
+          <h3><i></i>Por qué importa</h3>
+          <p>Si una captura muestra un dato y el vídeo muestra otro, la demostración entera pierde credibilidad.</p>
+          <p>La web y el vídeo usan la fuente canónica, y <strong>las capturas se comprueban contra esos mismos datos</strong>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13 · Escena 3D -->
+    <section class="slide">
+      <div class="slide-inner split">
+        <div>
+          <p class="eyebrow"><i></i> 12 · La escena 3D, cuándo y cómo</p>
+          <h2>Añade una escena 3D solo si <em>ayuda a entender el producto</em>.</h2>
+          <ul class="checks">
+            <li><strong>Cuándo usarla</strong>: la escena se justifica cuando ver el proceso en el espacio explica más que contarlo. Si no aporta claridad, se omite.</li>
+            <li><strong>Nada decorativo</strong>: cada objeto o efecto representa un paso real; humo y agua solo aparecen cuando pertenecen al caso.</li>
+            <li><strong>Ritmo y anclas</strong>: la animación sigue los datos canónicos, y los rótulos HTML se proyectan sobre puntos 3D.</li>
+            <li><strong>Encuadre calculado</strong>: la escena ocupa una fracción fija de la pantalla en cualquier tamaño; el recorte y la niebla escalan con la cámara.</li>
+            <li><strong>Comportamiento alternativo</strong>: sin WebGL se oculta sin mostrar errores; con renderizado por software reduce la resolución y la frecuencia; con <code>prefers-reduced-motion</code> muestra un fotograma fijo.</li>
+          </ul>
+        </div>
+        <div><pre><i>// signal-field.js — lo que se toca casi siempre</i>
+BEATS   <i>ritmo del caso (instante, duración, ancla)</i>
+ANCHORS <i>puntos 3D donde anclan los rótulos</i>
+addWalk <i>recorridos por los huecos de puerta reales</i>
+resize  <i>encuadre: fracción de pantalla y centro</i>
+
+<i>// revisar un instante exacto</i>
+index.html<b>?twin-time=21.4</b>
+index.html<b>?twin-time=30.3</b></pre>
+          <p class="prompt-ref"><strong>Prompts EN:</strong> <a href="#annex-scene-3" data-slide-target="annex-scene-3">construcción 3D · 3</a> · <a href="#annex-operational-7-3" data-slide-target="annex-operational-7-3">revisión por instantes · 7.3</a>.</p></div>
+      </div>
+    </section>
+
+    <!-- 14 · Nuevo producto o cliente -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> 13 · Nuevo producto o marca blanca</p>
+        <h2>Cómo adaptar el modelo <em>a otro producto o cliente</em>.</h2>
+        <p class="lead">El principio es el mismo para todos los clientes del monorepo: cambian los datos, la marca y los textos, pero se mantiene la forma de trabajar.</p>
+        <div class="grid cols-2 compact" style="gap:7px; margin-top:12px">
+          <div class="card" style="--dot:#37d3c4"><h3><i></i>1 · Datos canónicos propios</h3><p>Define el caso del producto o cliente en un JSON con esquema y notas, antes de crear la interfaz.</p></div>
+          <div class="card" style="--dot:#37d3c4"><h3><i></i>2 · Guion propio</h3><p>Escribe <code>COPY.md</code> a partir del producto. No adaptes los textos de otro proyecto mediante búsquedas y reemplazos.</p></div>
+          <div class="card" style="--dot:#797cef"><h3><i></i>3 · Marca y terminología</h3><p>Para marca blanca, lee la configuración del cliente y aplica sus valores a los recursos y variables.</p></div>
+          <div class="card" style="--dot:#797cef"><h3><i></i>4 · Esqueleto reutilizable</h3><p>Crea <code>[[PROJECT_ROOT]]/</code> con web, animaciones, auditoría y capturas. La referencia aporta patrones, no contenido.</p></div>
+          <div class="card" style="--dot:#f5a742"><h3><i></i>5 · Auditoría desde el primer día</h3><p>Ajusta los umbrales y añade una comprobación por cada regla nueva desde el inicio.</p></div>
+          <div class="card" style="--dot:#f5a742"><h3><i></i>6 · Componentes opcionales</h3><p>Decide si hacen falta una escena 3D o un vídeo. Si no aportan claridad, simplifica.</p></div>
+          <div class="card" style="--dot:#5cd58c"><h3><i></i>7 · Capturas del producto real</h3><p>Carga el caso canónico y ejecuta el script; en marca blanca, aplica la marca del cliente.</p></div>
+          <div class="card" style="--dot:#5cd58c"><h3><i></i>8 · Publicación con nombre propio</h3><p>Usa un Worker por proyecto y exige que la auditoría termine correctamente antes de publicar.</p></div>
+        </div>
+        <p class="prompt-ref" style="margin-top:8px"><strong>Prompts EN:</strong> <a href="#annex-kickoff" data-slide-target="annex-kickoff">arranque completo con contexto · 0</a> · <a href="#annex-index" data-slide-target="annex-index">índice de componentes · 1–6</a>.</p>
+      </div>
+    </section>
+
+    <!-- 15 · Beneficios -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> 14 · Beneficios del método</p>
+        <h2>Qué ganamos <em>trabajando así</em>.</h2>
+        <div class="grid cols-3">
+          <div class="card" style="--dot:#5cd58c"><h3><i></i>Rapidez sin perder seguridad</h3><p>Las iteraciones duran minutos, pero ninguna se entrega sin superar la auditoría. Podemos avanzar rápido sin renunciar a las comprobaciones.</p></div>
+          <div class="card" style="--dot:#a7a9ff"><h3><i></i>Coherencia verificable</h3><p>La web y el vídeo incorporan el mismo JSON, y las capturas se comprueban contra esos datos. Cualquier diferencia queda expuesta durante la revisión.</p></div>
+          <div class="card" style="--dot:#37d3c4"><h3><i></i>Funciona en distintos entornos</h3><p>Sin framework de aplicación ni CDN, la web abre desde un archivo local. Para publicarla basta con preparar y copiar una carpeta auditada.</p></div>
+          <div class="card" style="--dot:#f5a742"><h3><i></i>Resultados reproducibles</h3><p>La web, las capturas y el vídeo se generan mediante comandos. Las fuentes y los procesos quedan en el repositorio, no en un equipo personal.</p></div>
+          <div class="card" style="--dot:#8fc6ff"><h3><i></i>Historial útil</h3><p>Los commits pequeños y temáticos documentan la evolución y sirven de guía para el siguiente proyecto.</p></div>
+          <div class="card" style="--dot:#f05a4f"><h3><i></i>Método transferible</h3><p>El proceso no depende de una sola persona. Cualquier miembro del equipo puede seguir la misma secuencia desde los datos hasta la publicación.</p></div>
+        </div>
+        <p class="prompt-ref"><a href="#annex-operational-7-8" data-slide-target="annex-operational-7-8"><strong>Para cerrar una ronda aprobada:</strong> abrir el prompt en inglés para crear un commit revisado →</a></p>
+      </div>
+    </section>
+
+    <!-- 16 · Recomendaciones -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> 15 · Recomendaciones prácticas</p>
+        <h2>Seis prácticas que evitan <em>errores frecuentes</em>.</h2>
+        <div class="grid cols-2">
+          <div class="card" style="--dot:#f05a4f"><h3><i></i>Define dónde vive cada dato</h3><p>La información de producto, marca y contenido debe mantenerse en un único archivo o directorio. Genera las copias necesarias y no las edites a mano.</p></div>
+          <div class="card" style="--dot:#f5a742"><h3><i></i>Acota cada encargo a la IA</h3><p>Indica el resultado esperado, los archivos que puede modificar y la prueba de aceptación. Divide los cambios grandes en rondas que puedas revisar.</p></div>
+          <div class="card" style="--dot:#37d3c4"><h3><i></i>Comprueba el resultado real</h3><p>No basta con que el proyecto compile. Ejecuta las pruebas automáticas y revisa capturas en los tamaños, estados e instantes acordados.</p></div>
+          <div class="card" style="--dot:#5cd58c"><h3><i></i>Justifica cada elemento complejo</h3><p>Usa 3D, vídeo o interacciones avanzadas solo si ayudan a entender el producto. Prepara siempre una alternativa accesible, ligera y sin movimiento.</p></div>
+          <div class="card" style="--dot:#8fc6ff"><h3><i></i>Separa generación y publicación</h3><p>Genera la versión que se va a publicar, revisa su contenido y despliega solo con autorización expresa. No publiques directamente desde la carpeta de trabajo.</p></div>
+          <div class="card" style="--dot:#a7a9ff"><h3><i></i>Deja el proyecto listo para continuar</h3><p>Documenta las decisiones, conserva comandos reproducibles y mantén desactivado lo incompleto. Cada ronda debe terminar sin errores ni cambios ocultos.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 17 · Plantilla white-label -->
+    <section class="slide">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> 16 · Sistema white-label</p>
+        <h2 style="margin-bottom:12px">Un núcleo común, <em>configurado para cada proyecto</em>.</h2>
+        <p class="lead" style="margin:0">El sistema se distribuye sin nombres, rutas, URLs ni recursos de un cliente concreto. Cada proyecto aporta su configuración y genera entregables independientes.</p>
+        <div class="package-flow">
+          <div class="package-stage" style="--stage:#a7a9ff">
+            <span class="stage-label">01 · Núcleo reutilizable</span>
+            <h3>Se mantiene igual</h3>
+            <ul class="package-list">
+              <li>Estructura de carpetas y contratos de datos</li>
+              <li>Componentes y plantillas de producción</li>
+              <li>Comandos de generación, pruebas y publicación</li>
+              <li>Reglas para agentes y prompts operativos</li>
+            </ul>
+          </div>
+          <div class="package-arrow" aria-hidden="true">→</div>
+          <div class="package-stage" style="--stage:#37d3c4">
+            <span class="stage-label">02 · Configuración</span>
+            <h3>Cambia por proyecto</h3>
+            <ul class="package-list">
+              <li>Nombre, dominios, entornos e integraciones</li>
+              <li>Contexto de producto, audiencias y contenido</li>
+              <li>Logotipo, colores, tipografías y recursos</li>
+              <li>Idiomas, enlaces y datos del caso canónico</li>
+            </ul>
+          </div>
+          <div class="package-arrow" aria-hidden="true">→</div>
+          <div class="package-stage" style="--stage:#f5a742">
+            <span class="stage-label">03 · Entregables</span>
+            <h3>Se generan y verifican</h3>
+            <ul class="package-list">
+              <li>Web y presentación</li>
+              <li>Capturas y vídeo</li>
+              <li>Paquete de despliegue por entorno</li>
+              <li>Informe de pruebas y versión publicada</li>
+            </ul>
+          </div>
+        </div>
+        <div class="package-note">
+          <p><strong>Cada proyecto vive en su propia <code>[[PROJECT_ROOT]]/</code>.</strong> Las diferencias de cada cliente o producto se mantienen en su configuración; los entregables se vuelven a generar y no se corrigen manualmente.</p>
+          <a href="#annex-operational-7-8" data-slide-target="annex-operational-7-8">Prompt EN para cerrar una ronda →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Anexo: intro -->
+    <section class="slide" id="annex-index">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> Anexo · Prompts one-shot (EN)</p>
+        <h2 style="margin-bottom:18px">Un prompt por componente, <em>listo para pegar</em>.</h2>
+        <p class="lead" style="max-width:96ch">Los 22 prompts están en inglés: rellena todos los <code>[[PLACEHOLDER]]</code>. El 0 construye el paquete completo; 1–6 y 7.1–7.15 funcionan por separado. Los bloques largos tienen desplazamiento interno y el icono de copia siempre incluye el texto completo.</p>
+        <div class="grid cols-3" style="margin-top:16px">
+          <div class="card" style="--dot:#797cef"><h3><i></i>0 · Arranque</h3><p>Método de trabajo, raíz del proyecto, referencias opcionales, fuentes del producto y reglas que debe seguir la IA.</p><p class="prompt-ref" style="margin-top:6px"><a href="#annex-kickoff" data-slide-target="annex-kickoff">Abrir prompt →</a></p></div>
+          <div class="card" style="--dot:#37d3c4"><h3><i></i>1 · Datos + textos</h3><p>Contexto del producto, audiencias, tono, estructura del relato, textos de interfaz y caso canónico trazable.</p><p class="prompt-ref" style="margin-top:6px"><a href="#annex-content-1" data-slide-target="annex-content-1">Abrir prompt →</a></p></div>
+          <div class="card" style="--dot:#37d3c4"><h3><i></i>2 · Web + presentación</h3><p>Stack, dirección de diseño, marca, UX, UI, componentes, accesibilidad y auditoría integral.</p><p class="prompt-ref" style="margin-top:6px"><a href="#annex-web-2" data-slide-target="annex-web-2">Abrir prompt →</a></p></div>
+          <div class="card" style="--dot:#f5a742"><h3><i></i>3 · Escena 3D</h3><p>Una escena que representa un proceso real, solo cuando verlo en el espacio aporta claridad.</p><p class="prompt-ref" style="margin-top:6px"><a href="#annex-scene-3" data-slide-target="annex-scene-3">Abrir prompt →</a></p></div>
+          <div class="card" style="--dot:#8fc6ff"><h3><i></i>4 · Capturas</h3><p>Pantallas reales del producto con los datos del caso canónico cargados.</p><p class="prompt-ref" style="margin-top:6px"><a href="#annex-captures-4" data-slide-target="annex-captures-4">Abrir prompt →</a></p></div>
+          <div class="card" style="--dot:#5cd58c"><h3><i></i>5 y 6 · Vídeo y publicación</h3><p>El vídeo locutado y el paquete listo para desplegar en su propio Worker.</p><p class="prompt-ref" style="margin-top:6px"><a href="#annex-video-5" data-slide-target="annex-video-5">Vídeo →</a> · <a href="#annex-publish-6" data-slide-target="annex-publish-6">Publicación →</a></p></div>
+        </div>
+        <p class="prompt-ref" style="margin-top:10px"><strong>Operación:</strong> <a href="#annex-operational-7-1" data-slide-target="annex-operational-7-1">ejecutar 7.1</a> · <a href="#annex-operational-7-2" data-slide-target="annex-operational-7-2">cambiar 7.2</a> · <a href="#annex-operational-7-3" data-slide-target="annex-operational-7-3">verificar 7.3</a> · <a href="#annex-operational-7-4" data-slide-target="annex-operational-7-4">capturar 7.4</a> · <a href="#annex-operational-7-5" data-slide-target="annex-operational-7-5">vídeo 7.5</a> · <a href="#annex-operational-7-6" data-slide-target="annex-operational-7-6">preparar 7.6</a> · <a href="#annex-operational-7-7" data-slide-target="annex-operational-7-7">publicar 7.7</a> · <a href="#annex-operational-7-8" data-slide-target="annex-operational-7-8">commit 7.8</a>.</p>
+        <p class="prompt-ref" style="margin-top:4px"><strong>Configuración:</strong> <a href="#annex-operational-7-9" data-slide-target="annex-operational-7-9">Goals 7.9</a> · <a href="#annex-operational-7-10" data-slide-target="annex-operational-7-10">AGENTS.md y CLAUDE.md 7.10</a> · <a href="#annex-operational-7-11" data-slide-target="annex-operational-7-11">Mac y modelos 7.11</a>.</p>
+        <p class="prompt-ref" style="margin-top:4px"><strong>Revisión cruzada:</strong> <a href="#annex-operational-7-12" data-slide-target="annex-operational-7-12">ejecutar una auditoría independiente 7.12</a> · <a href="#annex-operational-7-13" data-slide-target="annex-operational-7-13">automatizar el control por funcionalidad, PR o commits 7.13</a>.</p>
+        <p class="prompt-ref" style="margin-top:4px"><strong>Repositorio y desarrollo:</strong> <a href="#annex-operational-7-14" data-slide-target="annex-operational-7-14">repositorio + .gitignore 7.14</a> · <a href="#annex-operational-7-15" data-slide-target="annex-operational-7-15">despliegue protegido desde main 7.15</a>.</p>
+      </div>
+    </section>
+
+    <!-- Anexo: kickoff -->
+    <section class="slide" id="annex-kickoff">
+      <div class="slide-inner split">
+        <div>
+          <p class="eyebrow"><i></i> Anexo · 0 — Arranque del proyecto</p>
+          <h2>El prompt que <em>construye el paquete completo</em>.</h2>
+          <ul class="checks">
+            <li><strong>Este playbook también sirve de contexto para la IA</strong>: el agente debe leerlo antes de escribir nada y aplicar su estructura, proceso, comprobaciones y límites.</li>
+            <li><strong>Adjunta o enlaza entradas concretas</strong>: carpetas de producto, logos originales, guía de marca, Figma, capturas aprobadas y URLs de producción o staging.</li>
+            <li>Indica la procedencia y el uso permitido de cada referencia. Una URL aporta contexto, pero no autoriza a copiar; nunca adjuntes credenciales.</li>
+            <li>Para marca blanca, añade la carpeta del cliente (<code>clients/CLIENT_ID/</code>) como fuente de marca y terminología.</li>
+            <li>El agente valida todas las entradas al inicio y completa el trabajo sin aprobaciones intermedias. Solo se detiene si falta una decisión material, un derecho de uso, una credencial o una autorización externa.</li>
+          </ul>
+        </div>
+<pre class="prompt en small" data-prompt-id="0">Outcome
+Build the complete web-and-media package for [[PRODUCT_NAME]] under
+[[PROJECT_ROOT]] in one continuous run. Keep content, canonical data, landing,
+presentation, captures, optional 3D, optional video and deployment package
+consistent with the same approved sources and canonical case.
+
+Inputs
+- Project: [[PROJECT_NAME]]; product: [[PRODUCT_NAME]]; root: [[PROJECT_ROOT]];
+  slug: [[PROJECT_SLUG]].
+- Canonical case file: [[CANONICAL_CASE_FILE]].
+- White-label client: [[CLIENT_ID_OR_NONE]].
+- Reference package: [[REFERENCE_PROJECT_ROOT_OR_NONE]].
+- Product sources: [[PRODUCT_SOURCES]].
+- Brand sources: [[BRAND_SOURCES]].
+- Approved assets/captures/design links: [[APPROVED_ASSETS_OR_NONE]].
+- Environment URLs and run notes: [[ENVIRONMENT_URLS_AND_RUN_NOTES_OR_NONE]].
+- Git and protected development deployment: [[GIT_PROVIDER_OR_NONE]];
+  [[REPOSITORY_URL_OR_NONE]]; [[CLOUDFLARE_ACCOUNT_OR_NONE]];
+  [[DEV_WORKER_NAME_OR_NONE]]; [[DEV_SUBDOMAIN_OR_NONE]];
+  [[ACCESS_POLICY_OR_NONE]].
+- CONFIGURE_DEV_DEPLOYMENT: [[CONFIGURE_DEV_DEPLOYMENT_YES_OR_NO]];
+  exact external setup authorization: [[EXACT_EXTERNAL_SETUP_AUTHORIZATION_OR_NONE]].
+- INCLUDE_3D: [[INCLUDE_3D_YES_OR_NO]].
+- INCLUDE_VIDEO: [[INCLUDE_VIDEO_YES_OR_NO]].
+- PUBLISH_AUTHORIZED after verification: [[PUBLISH_AUTHORIZED_YES_OR_NO]].
+- COMMIT_AUTHORIZED after verification: [[COMMIT_AUTHORIZED_YES_OR_NO]].
+
+Input gate
+Before editing, fail fast with a Missing inputs table if any placeholder remains
+or a required path cannot be read. NONE is valid only for *_OR_NONE. Never use
+the reference package as product truth, copy, brand or evidence of a feature.
+When CONFIGURE_DEV_DEPLOYMENT is YES, every Git/Cloudflare input and the exact
+external setup authorization must be a real value rather than NONE.
+
+Source order
+1. Applicable AGENTS.md/CLAUDE.md instructions and repository documentation.
+2. docs/playbooks/web-comercial-con-ia/ as the working method.
+3. [[PRODUCT_SOURCES]] for capabilities, roles, states, terminology and claims.
+4. [[BRAND_SOURCES]] and the client contract identified by
+   [[CLIENT_ID_OR_NONE]] when it is not NONE.
+5. Existing files under [[PROJECT_ROOT]], preserving valid work.
+6. [[REFERENCE_PROJECT_ROOT_OR_NONE]] only for architecture and quality patterns.
+
+Work and acceptance
+1. Create COPY.md, data/[[CANONICAL_CASE_FILE]] and data/validate.mjs. Use
+   privacy-safe realistic data, real product enums and a claim-to-source ledger.
+2. Build landing/ with semantic HTML, modern CSS and vanilla JavaScript; local
+   esbuild bundles; approved GSAP/Motion dependencies; no CDN or runtime request;
+   file:// support; responsive web and presentation mode.
+3. If INCLUDE_3D is YES, implement the canonical-case-driven Three.js scene,
+   deterministic ?twin-time= review, quality tiers and accessible fallbacks.
+4. Create or adapt capture tools, produce the approved product screens, keep raw
+   outputs ignored and copy only selected PNGs to landing/assets/captures/.
+5. If INCLUDE_VIDEO is YES, create the manifest-driven Remotion/TTS review film
+   from COPY.md, the canonical case and approved captures; respect every licence
+   and approval gate and do not render a commercial master without full evidence.
+6. Create a project-specific .gitignore, finish.sh and deploy/dist/ containing
+   only publishable static files. Keep source, lockfiles and configuration
+   trackable; exclude secrets, dependencies, caches and regenerable outputs.
+7. If CONFIGURE_DEV_DEPLOYMENT is YES, follow prompts 7.14 and 7.15: verify the
+   authorized repository and make main deploy only to the protected development
+   Worker. Keep production separate and do not change external settings unless
+   the exact action is explicitly authorized.
+8. Run every component validation, npm run check and deterministic visual checks.
+   Fix in-scope failures and repeat until the included deliverables pass.
+
+System constraints
+- One canonical JSON; generated copies are never edited by hand.
+- Natural es-ES, approved terminology and no invented claim, metric or workflow.
+- White-label differences live in project/client configuration, not shared code.
+- Local assets only; no secret, credential, private voice or unlicensed media.
+- Unfinished optional work stays behind a named boolean flag set to false.
+- Never store secrets in Git; document required names in example environment files.
+- Record reversible assumptions in [[PROJECT_ROOT]]/DECISIONS.md and continue.
+
+Acceptance
+- Every included component exists, consumes the canonical case and passes its
+  documented checks; the landing opens from file:// with zero external requests.
+- Presentation slides fit 1280x720 and 1920x1080; requested responsive states and
+  deterministic captures are supplied; deploy/dist/ contains no source scripts.
+- When CONFIGURE_DEV_DEPLOYMENT is YES, each main build runs the required checks,
+  deploys only the isolated development Worker and restricts access as approved.
+- Publish only when PUBLISH_AUTHORIZED is YES and authentication/account are
+  unambiguous. Commit only when COMMIT_AUTHORIZED is YES; never push.
+
+Return and permissions
+Return: status by component; files created/changed; decisions and unresolved
+inputs; commands with exit codes; screenshot/render paths; deployment URL when
+authorized; commit hash when authorized; and a final done/not-done verdict tied
+to the Acceptance section. Report results and evidence, not a work diary.</pre>
+      </div>
+    </section>
+
+    <!-- Anexo: contenido -->
+    <section class="slide" id="annex-content-1">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> Anexo · 1 — Contenido, producto y lenguaje</p>
+        <h2>El contenido parte del producto, <em>no del diseño de la página</em>.</h2>
+<pre class="prompt en small" data-prompt-id="1" style="margin-top:16px;font-size:9.8px;line-height:1.4">Outcome
+Create the complete canonical content layer for [[PRODUCT_NAME]] under
+[[PROJECT_ROOT]]: one validated demo case and one implementation-ready COPY.md.
+
+Inputs
+- Product/project root: [[PRODUCT_NAME]]; [[PROJECT_ROOT]].
+- Canonical case file: [[CANONICAL_CASE_FILE]].
+- White-label client: [[CLIENT_ID_OR_NONE]].
+- Product sources: [[PRODUCT_SOURCES]].
+- Brand sources: [[BRAND_SOURCES]].
+- Primary audience: [[PRIMARY_AUDIENCE]].
+- Secondary audience: [[SECONDARY_AUDIENCE_OR_NONE]].
+- Primary CTA: [[PRIMARY_CTA]].
+- Secondary CTA: [[SECONDARY_CTA_OR_NONE]].
+- Approved research/captures/existing copy: [[CONTENT_EVIDENCE_OR_NONE]].
+- Reference package: [[REFERENCE_PROJECT_ROOT_OR_NONE]].
+
+Input gate
+Stop before editing if a placeholder remains or product/brand sources conflict
+without an authority order.
+
+Source order
+Read applicable repository instructions, this playbook, [[PRODUCT_SOURCES]],
+[[BRAND_SOURCES]], the client contract when
+supplied, existing target files, then the optional reference for structure only.
+Never copy its claims or voice. Never use personal customer data.
+
+Work and acceptance
+1. Create data/[[CANONICAL_CASE_FILE]] as the single source of truth: privacy-safe
+   realistic actors, entities, roles, actual enums, timestamps, durations,
+   dependencies, branches, channels, states and a complete recorded run. Add
+   source references and meta.notes for non-obvious decisions and invariants.
+2. Create dependency-free data/validate.mjs. Validate schema, required references,
+   enums, identifiers, chronology, dependencies and branch integrity.
+3. Create COPY.md with: product context and limits; audience jobs, friction,
+   criteria and objections; conversion goal; promise and value proposition;
+   narrative map; final es-ES navigation, hero, sections, captions, CTAs and
+   presentation copy; applicable UI states; terminology; voice/tone; words to
+   avoid; and a claim-to-source ledger.
+
+Writing rules
+- Use natural Spanish from Spain, active sentences and one idea per heading.
+- Choose and document one form of address; keep it consistent.
+- Lead with the audience problem and outcome, then the real mechanism and proof.
+- Separate decision-maker concerns from operator tasks; use actual role names.
+- Preserve approved names/status labels and client locale overrides.
+- Do not invent metrics, testimonials, integrations, pricing, certifications,
+  roadmap promises or vague claims. Mark unsupported items NEEDS_INPUT.
+
+Acceptance
+Run node [[PROJECT_ROOT]]/data/validate.mjs successfully. Cross-check every
+number, enum, label, CTA and claim against the source hierarchy. Confirm that
+COPY.md contains final copy rather than notes or placeholders.
+
+Return and permissions
+Return created/changed files, validation command and exit code, claim ledger,
+recorded decisions and unresolved NEEDS_INPUT items. Do not build UI,
+commit, push, publish or change files outside [[PROJECT_ROOT]].</pre>
+      </div>
+    </section>
+
+    <!-- Anexo: web -->
+    <section class="slide" id="annex-web-2">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> Anexo · 2 — Web, diseño y experiencia</p>
+        <h2 style="margin-bottom:14px">Marca, diseño y tecnología <em>deben funcionar juntos</em>.</h2>
+<pre class="prompt en small" data-prompt-id="2" style="margin-top:6px;font-size:9.5px;line-height:1.34">Outcome
+Build the complete branded product web for [[PRODUCT_NAME]] under
+[[PROJECT_ROOT]]/landing, including responsive landing, presentation mode,
+guided canonical case, local build and automated acceptance audit.
+
+Inputs
+- Product/project root: [[PRODUCT_NAME]]; [[PROJECT_ROOT]].
+- Canonical case: [[PROJECT_ROOT]]/data/[[CANONICAL_CASE_FILE]].
+- Approved copy: [[PROJECT_ROOT]]/COPY.md.
+- White-label client: [[CLIENT_ID_OR_NONE]].
+- Product sources: [[PRODUCT_SOURCES]].
+- Brand sources/assets/licences: [[BRAND_SOURCES]].
+- Approved product captures: [[APPROVED_PRODUCT_CAPTURES_OR_NONE]].
+- Design/Figma/reference URLs: [[DESIGN_REFERENCES_OR_NONE]].
+- Reference package: [[REFERENCE_PROJECT_ROOT_OR_NONE]].
+
+Input gate
+Stop before editing if COPY.md or the canonical JSON is missing/invalid, a
+placeholder remains or brand/licence authority is unresolved.
+
+Source order
+Read repository instructions, this playbook, target COPY/data/brand files, client configuration,
+existing landing, then the optional reference only for architecture and quality.
+
+Work and acceptance
+Technical contract
+- Semantic HTML5, modern CSS and vanilla JavaScript; no app framework.
+- Use target lockfile versions. When bootstrapping, use the approved reference
+  dependency set: esbuild local IIFE bundles; GSAP ScrollTrigger/SplitText;
+  Motion for focused feedback; Three.js only through prompt 3.
+- sync-data.mjs embeds canonical JSON. npm run build performs sync and bundles;
+  npm run check performs build plus audit. Generated vendor files are read-only.
+- No CDN, analytics beacon, remote font/image or runtime API request. All assets
+  are local and the complete experience works from file://.
+
+Product, design and UX contract
+- Implement COPY.md without casual rewrites. Build a cumulative story: context
+  and problem -&gt; promise -&gt; mechanism -&gt; worked case -&gt; real evidence -&gt; relevant
+  capabilities/use cases -&gt; outcome/proof -&gt; specific CTA.
+- Write brand/README.md with the rationale. Use source order: approved brand -&gt;
+  client contract/tokens -&gt; product semantics -&gt; reference patterns. Use CSS
+  tokens for colour, type, spacing, widths, radii, borders, elevation and motion.
+- Use supplied logos unchanged and licensed local fonts only. Product status and
+  severity colours are semantic. Never fabricate or misleadingly crop UI.
+- Mobile first; no scroll hijacking. Implement only content-justified components
+  and every applicable state. Use native controls, visible focus, logical DOM,
+  one h1, valid headings, useful alt text, contrast and touch targets.
+- Motion explains hierarchy/state. Reduced motion removes non-essential movement
+  without hiding content.
+
+Presentation and case
+- P and ?mode=present open real .present-slide/data-present-* sections. Support
+  Escape, arrows, Home/End, wheel and touch; trap focus, make inactive slides
+  inert, restore focus and fit 1280x720 and 1920x1080.
+- Drive the guided case only from canonical JSON. Implement real dependencies,
+  parallel/blocking/skipped/overdue states and one sourced negative branch.
+  Expose a stable window test API following the target/reference pattern.
+- Keep unfinished optional features behind a named boolean flag set to false.
+
+Acceptance
+Adapt audit.mjs to fail on page/console errors, external requests, a11y defects,
+horizontal overflow at 390x844, 768x1024, 1440x900 and 2560x1440, reduced-motion
+hidden content, presentation focus/fit errors and invalid case transitions.
+Run npm run check. Use existing Playwright capture tooling, or create one only
+when absent, for deterministic web/presentation screenshots at the agreed sizes.
+Fix failures and rerun until green.
+
+Return and permissions
+Return files changed, commands/exit codes, audit summary, screenshot paths,
+decisions and unresolved inputs. Do not commit, push or publish.</pre>
+      </div>
+    </section>
+
+    <!-- Anexo: escena / capturas -->
+    <section class="slide" id="annex-scene-captures-3-4">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> Anexo · 3 y 4 — Escena y capturas</p>
+        <h2>Una escena que explica el proceso y <em>capturas del producto real</em>.</h2>
+        <div class="grid cols-2" style="margin-top:18px">
+<pre class="prompt en small" id="annex-scene-3" data-prompt-id="3">Outcome
+Implement the optional operational Three.js scene for [[PRODUCT_NAME]] under
+[[PROJECT_ROOT]]/landing so it explains the canonical process rather than
+decorating the page.
+
+Inputs
+- Product/project root: [[PRODUCT_NAME]]; [[PROJECT_ROOT]].
+- Canonical case: [[PROJECT_ROOT]]/data/[[CANONICAL_CASE_FILE]].
+- Approved copy/scene purpose: [[PROJECT_ROOT]]/COPY.md and [[SCENE_PURPOSE]].
+- Storyboard/spatial references: [[STORYBOARD_AND_SPATIAL_REFERENCES]].
+- Approved models/textures/licences: [[MODEL_TEXTURE_ASSETS_OR_NONE]].
+- Review beats and times: [[REVIEW_BEATS_AND_SECONDS]].
+- Feature flag name: [[SCENE_FLAG_NAME]].
+- Reference package: [[REFERENCE_PROJECT_ROOT_OR_NONE]].
+
+Input gate
+Stop before editing if the scene purpose, canonical case, review beats or asset
+rights are unresolved.
+
+Source order
+Read repository instructions, this playbook, target COPY/data/landing, then
+optional reference signal-field.js for architecture only.
+
+Work and acceptance
+- Every object/effect represents a sourced step. Drive beats from canonical JSON
+  and project real HTML labels for time, event, actor and deadline onto anchors.
+- Keep labels inside the viewport and outside copy/HUD regions.
+- Compute camera distance for a fixed screen fraction and use setViewOffset for
+  panning; scale far plane and fog with distance.
+- Implement ?twin-time=SECONDS for deterministic review, using the supplied
+  values in [[REVIEW_BEATS_AND_SECONDS]].
+- Use GPU and software-renderer quality tiers; reduce resolution/cadence on
+  software renderers. Provide silent WebGL failure and a rich reduced-motion
+  static frame. Dispose geometry, materials, listeners and context on unmount.
+- Keep the scene behind [[SCENE_FLAG_NAME]] = false while incomplete. Enable it
+  only after every acceptance check passes; otherwise leave it off and report why.
+
+Acceptance
+Run npm run check. Capture every [[REVIEW_BEATS_AND_SECONDS]] state at 1440 and
+2000 wide, plus software-renderer fallback and reduced-motion frame. Confirm no
+label collision, clipped geometry, external request or regression in page motion.
+
+Return and permissions
+Return files changed, flag state, commands/exit codes and screenshot paths by
+beat/viewport. Do not commit, push or publish.</pre>
+<pre class="prompt en small" id="annex-captures-4" data-prompt-id="4">Outcome
+Create or update the reproducible product-capture workflow for [[PRODUCT_NAME]]
+and generate the exact approved capture set consumed by the landing and video.
+
+Inputs
+- Product/project root: [[PRODUCT_NAME]]; [[PROJECT_ROOT]].
+- Canonical case: [[PROJECT_ROOT]]/data/[[CANONICAL_CASE_FILE]].
+- Screen/state list: [[SCREEN_LIST_AND_REQUIRED_STATES]].
+- Device/viewport matrix: [[DEVICE_AND_VIEWPORT_MATRIX]].
+- Capture adapters and raw-output groups: [[CAPTURE_ADAPTERS_AND_OUTPUT_GROUPS]].
+- Environment URLs and non-secret run notes: [[ENVIRONMENT_URLS_AND_RUN_NOTES]].
+- Seed/fixture path: [[SEED_OR_FIXTURE_PATH]].
+- Existing authenticated-session instructions: [[AUTH_SESSION_INSTRUCTIONS_OR_NONE]].
+- Approved examples/selection criteria: [[CAPTURE_REFERENCES_AND_CRITERIA]].
+- Reference package: [[REFERENCE_PROJECT_ROOT_OR_NONE]].
+
+Input gate
+Stop before capture if a placeholder remains, canonical data cannot be seeded or
+authentication would require receiving/typing a secret.
+
+Source order
+Read repository/client instructions, this playbook, target capture tools and data, product code/fixtures,
+then optional reference capture/ only for structure. If target tools do not exist,
+create equivalent documented tools; never copy reference ids, URLs or credentials.
+
+Work and acceptance
+- Seed the product with exactly the canonical names, times, roles and states.
+- Create/version the screen list and scripts. Reuse an existing signed-in profile
+  or require a person to authenticate; never persist secrets in code or output.
+- Capture only agreed states at exact sizes, locale and theme. Remove browser
+  chrome, internal labels and test banners; never retouch PNGs.
+- Write raw outputs/manifests under ignored captures/, separated by the groups
+  declared in [[CAPTURE_ADAPTERS_AND_OUTPUT_GROUPS]]. Copy only the selected
+  predictable PNG names to landing/assets/captures and update img
+  references/alt text. Add assertions against canonical data.
+
+Acceptance
+Run each documented capture command. Verify required files, sizes, state/data
+assertions and manifest completeness. Run npm run check in landing after copying.
+
+Return and permissions
+Return commands/exit codes, raw and selected paths, manifest diff, data assertion
+results and final landing audit. Do not expose secrets, alter product data,
+retouch images, commit, push or publish.</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Anexo: vídeo / deploy -->
+    <section class="slide" id="annex-video-publish-5-6">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> Anexo · 5 y 6 — Vídeo y publicación</p>
+        <h2 style="margin-bottom:9px">Cómo preparar el vídeo locutado y <em>la versión publicable</em>.</h2>
+        <div class="grid cols-2" style="margin-top:9px">
+<pre class="prompt en small" id="annex-video-5" data-prompt-id="5">Outcome
+Create or update the reproducible voiced film for [[PRODUCT_NAME]] under
+[[PROJECT_ROOT]]/video and produce [[TARGET_PROFILE]] with documented evidence.
+
+Inputs
+- Product/project root: [[PRODUCT_NAME]]; [[PROJECT_ROOT]].
+- Target profile: [[TARGET_PROFILE]]; allowed values are review-1080p,
+  review-4k or master-4k.
+- Canonical case/COPY: [[PROJECT_ROOT]]/data/[[CANONICAL_CASE_FILE]] and COPY.md.
+- Storyboard/edit reference: [[STORYBOARD_OR_EDIT_REFERENCE]].
+- Approved captures/brand assets: [[APPROVED_CAPTURE_AND_BRAND_ASSETS]].
+- Pronunciation guide and approved voice preset: [[VOICE_INPUTS]].
+- Scene regeneration: [[SCENE_ID_OR_ALL]].
+- Music/SFX/font/voice/Remotion licence records: [[LICENCE_RECORDS]].
+- Reference package: [[REFERENCE_PROJECT_ROOT_OR_NONE]].
+
+Input gate
+Stop before generating assets if a placeholder remains or source/voice/music/font/
+Remotion rights for TARGET_PROFILE are incomplete.
+
+Source order
+Read repository instructions, this playbook, target README/package/manifest/schema/licences, target COPY/data,
+then optional reference video/ for architecture only.
+
+Work and acceptance
+Technical and editorial contract
+- Use target lockfile versions; when bootstrapping match the approved pipeline:
+  Remotion 4.0.506, React 19, TypeScript 5.9, Node 22+, YAML/Zod and native tests;
+  Python 3.11 + uv, Chatterbox Multilingual es-ES, PyTorch/MPS, Stable-ts +
+  Whisper Medium, FFmpeg/ffprobe and SHA-256 provenance.
+- One YAML manifest is canonical for script, timing, scenes, narration, claims and
+  approvals. Narration is natural es-ES derived from COPY.md. Names/times/states
+  match canonical data and scenes reuse real approved captures.
+- Register Inter/OFL, music/SFX, voice-prompt consent and Remotion evidence.
+  Never attach/use an unlicensed asset or private voice without consent.
+- Regenerate with npm run video:voice -- --all --write when
+  [[SCENE_ID_OR_ALL]] is ALL; otherwise use --scene [[SCENE_ID_OR_ALL]] --write.
+  Generative commands require --write; --check remains non-mutating.
+
+Execution gates
+From video/, run npm ci; npm run video:validate -- --check; npm run video:assets
+-- --write; the documented audition/voice command with --write; npm run
+video:align -- --write; npm run video:preview -- --write; npm test; npm run
+typecheck; then npm run video:render -- --profile [[TARGET_PROFILE]] --write.
+Review profiles remain watermarked/evaluation-only. For master-4k require claims,
+picture lock, final approval, rights/mix, commercial Remotion, music and voice
+evidence; never bypass a gate. Run video:qa -- --check only when its required
+master artifacts exist, and package only when TARGET_PROFILE is master-4k and QA
+passes.
+
+Acceptance
+Validation, tests and typecheck pass; voice selection is approved; rendered media
+matches manifest duration/profile; build/review/report*.json passes for review,
+or full QA/package passes for master. Run the other profiles with --check and
+report their remaining gates.
+
+Return and permissions
+Return commands/exit codes, selected voice/profile, report and media paths,
+licence/gate status and unresolved blockers. Do not commit, push or publish.</pre>
+<pre class="prompt en small" id="annex-publish-6" data-prompt-id="6">Outcome
+Create a reproducible, verified static deployment package for [[PRODUCT_NAME]]
+under [[PROJECT_ROOT]] without publishing it.
+
+Inputs
+- Product/project root: [[PRODUCT_NAME]]; [[PROJECT_ROOT]].
+- Project slug: [[PROJECT_SLUG]].
+- Cloudflare account/team: [[CLOUDFLARE_ACCOUNT_OR_TEAM_OR_NONE]].
+- Final/custom domain: [[FINAL_OR_CUSTOM_DOMAIN_OR_NONE]].
+- Deployment runbook: [[DEPLOYMENT_RUNBOOK]].
+- QR brand asset: [[QR_BRAND_ASSET_OR_NONE]].
+- Reference package: [[REFERENCE_PROJECT_ROOT_OR_NONE]].
+
+Input gate
+Stop before editing if a placeholder remains.
+
+Source order
+Read repository instructions, this playbook, target README/landing/package scripts/deploy/finish.sh, the approved
+runbook, then optional reference finish.sh/deploy/ for structure only. Never
+read, print or store API tokens.
+
+Work and acceptance
+- Create/update finish.sh to install dependencies when required, run the complete
+  landing audit and abort on failure, recreate deploy/dist, and copy only
+  index.html, styles.css and assets/. Remove .mjs and README files from dist.
+- Create/update deploy/make-qr.py and document its segno environment. It must take
+  the final URL as a required positional argument and produce SVG and PNG.
+- Document the explicit publish command without running it:
+  npx wrangler deploy --assets [[PROJECT_ROOT]]/deploy/dist --name [[PROJECT_SLUG]]
+- Document the expected workers.dev URL and optional custom-domain verification.
+  If versioned Wrangler configuration already exists, validate that it targets
+  the intended environment and contains no secrets. Do not create or alter
+  repository integration, routes or Wrangler configuration in this packaging-
+  only prompt; use prompt 7.15 for that authorized work.
+- Update README with build, check, finish, publish and QR commands.
+
+Acceptance
+Run finish.sh end to end. Confirm audit success and list dist recursively. Assert
+that every file is publishable and that no source, README, secret or credential
+is present. Test QR generation with the intended final URL when known.
+
+Return and permissions
+Return files changed, commands/exit codes, audit result, exact dist listing and QR
+paths. Do not run wrangler login/deploy, publish, commit or push.</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Anexo: operación 7.1 -->
+    <section class="slide" id="annex-operational-7-1">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> Anexo operativo · 7.1 — Instalar, compilar y auditar</p>
+        <h2>Un solo prompt puede <em>ejecutar y comprobar todos los comandos</em>.</h2>
+<pre class="prompt en" data-prompt-id="7.1">Outcome
+Prepare and verify the existing landing under [[PROJECT_ROOT]] without changing
+its intended source code.
+
+Inputs
+- Project root: [[PROJECT_ROOT]].
+- Expected Node/npm baseline: [[NODE_AND_NPM_BASELINE]].
+- Expected scripts: [[EXPECTED_BUILD_AND_CHECK_SCRIPTS]].
+
+Input gate
+Stop if a placeholder remains or the documented runtime conflicts with the
+supplied baseline.
+
+Source order
+Read repository instructions, [[PROJECT_ROOT]]/README.md, landing/README.md,
+landing/package.json and its lockfile.
+
+Work and acceptance
+From landing/, install only when node_modules is missing: use npm ci when a
+package-lock exists, otherwise npm install. Run npm run build, then npm run check.
+Do not edit source merely to make a command green. If a genuine defect is found,
+report it with evidence and stop this prompt before changing behaviour.
+
+Return and permissions
+Return detected versions, commands/exit codes, build/audit result and blockers.
+Do not edit source files, commit, push or publish.</pre>
+      </div>
+    </section>
+
+    <!-- Anexo: operación 7.2 -->
+    <section class="slide" id="annex-operational-7-2">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> Anexo operativo · 7.2 — Aplicar un cambio</p>
+        <h2>Cada cambio debe usar <em>la fuente correcta y aportar pruebas</em>.</h2>
+<pre class="prompt en" data-prompt-id="7.2">Outcome
+Implement exactly this bounded change: [[CHANGE_REQUEST]].
+
+Inputs
+- Project root: [[PROJECT_ROOT]].
+- Canonical case file: [[CANONICAL_CASE_FILE]].
+- Change request: [[CHANGE_REQUEST]].
+- Expected result: [[EXPECTED_RESULT]].
+- Affected URL/state: [[AFFECTED_URL_OR_STATE]].
+- Evidence/reference assets: [[ISSUE_AND_DESIGN_REFERENCES_OR_NONE]].
+- Viewports/states/times to prove: [[ACCEPTANCE_MATRIX]].
+- White-label client: [[CLIENT_ID_OR_NONE]].
+
+Input gate
+Stop if a placeholder remains or an attached reference has no stated authority.
+
+Source order
+Read repository instructions, [[PROJECT_ROOT]]/COPY.md for wording,
+[[PROJECT_ROOT]]/data/[[CANONICAL_CASE_FILE]] for case data, brand/client sources for white-label
+values, relevant implementation/tests, then optional references. Generated files
+under landing/assets/vendor are never edited manually.
+
+Work and acceptance
+Reproduce the current state, make the smallest coherent source change, regenerate
+derived files through documented commands, run npm run check from landing, and
+capture deterministic before/after evidence for [[ACCEPTANCE_MATRIX]]. Fix only
+failures caused by this change and rerun until green.
+
+Return and permissions
+Return root cause, files changed, commands/exit codes, screenshot paths and a
+pass/fail verdict against [[EXPECTED_RESULT]]. Do not commit, push or publish.</pre>
+      </div>
+    </section>
+
+    <!-- Anexo: operación 7.3 -->
+    <section class="slide" id="annex-operational-7-3">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> Anexo operativo · 7.3 — Verificación</p>
+        <h2>Comprueba el comportamiento y el aspecto <em>en condiciones reales</em>.</h2>
+<pre class="prompt en small" data-prompt-id="7.3">Outcome
+Verify the existing landing and presentation without changing intended behaviour.
+
+Inputs
+- Project root: [[PROJECT_ROOT]].
+- Responsive/presentation matrix: [[VIEWPORT_MATRIX]].
+- Required states and frozen times: [[STATE_AND_TIME_MATRIX]].
+
+Input gate
+Stop if a placeholder remains or the required browser/capture tooling is absent.
+
+Source order
+Read repository instructions, [[PROJECT_ROOT]]/landing README and package scripts,
+audit.mjs, presentation logic, capture tooling and canonical data.
+
+Work and acceptance
+Run npm run check. With the existing Playwright installation, open file:// and
+collect page/console errors and external requests; walk every slide; assert one
+active slide, counter/progress/keyboard/Home/End, focus behavior, reduced motion
+and slide fit; assert no horizontal overflow; capture [[VIEWPORT_MATRIX]] x
+[[STATE_AND_TIME_MATRIX]]. If a check fails, diagnose and apply only the smallest
+in-scope fix, then rerun the complete matrix until green.
+
+Return and permissions
+Return a concise check table, failures/root causes/fixes, commands/exit codes and
+screenshot paths. Do not commit, push or publish.</pre>
+      </div>
+    </section>
+
+    <!-- Anexo: operación 7.4 -->
+    <section class="slide" id="annex-operational-7-4">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> Anexo operativo · 7.4 — Capturas de producto</p>
+        <h2>Regenerar capturas <em>sin retocarlas</em>.</h2>
+<pre class="prompt en small" data-prompt-id="7.4">Outcome
+Regenerate the approved capture set for [[PRODUCT_NAME]] with the canonical case.
+
+Inputs
+- Product name: [[PRODUCT_NAME]].
+- Canonical case: [[PROJECT_ROOT]]/data/[[CANONICAL_CASE_FILE]].
+- Screen/state/device matrix: [[CAPTURE_MATRIX]].
+- Environment/run/seed notes: [[ENVIRONMENT_AND_SEED_NOTES]].
+- Authentication session instructions: [[AUTH_SESSION_INSTRUCTIONS_OR_NONE]].
+
+Input gate
+Stop if a placeholder remains or credentials would need to be pasted.
+
+Source order
+Read repository/client instructions, target capture scripts, canonical data, product
+fixtures and landing capture references.
+
+Work and acceptance
+Use an existing signed-in profile or require human authentication; never type or
+store secrets. Run documented web/iOS capture tools, keeping canonical names,
+times and states. Write raw files/manifests to ignored captures/web and captures/
+ios; copy only approved PNGs to landing/assets/captures; update references/alts;
+never retouch images. Validate the capture matrix/data assertions and run landing
+npm run check.
+
+Return and permissions
+Return commands/exit codes, raw/selected paths, manifest diff, assertion result
+and audit status. Do not alter product data, commit, push or publish.</pre>
+      </div>
+    </section>
+
+    <!-- Anexo: operación 7.5 -->
+    <section class="slide" id="annex-operational-7-5">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> Anexo operativo · 7.5 — Revisión de vídeo</p>
+        <h2>Validar y renderizar <em>sin omitir ninguna comprobación</em>.</h2>
+<pre class="prompt en small" data-prompt-id="7.5">Outcome
+Produce a verified [[REVIEW_PROFILE]] review render for
+the existing voiced video; do not create a commercial master.
+
+Inputs
+- Project root: [[PROJECT_ROOT]].
+- Review profile: [[REVIEW_PROFILE]]; allowed values are review-1080p or
+  review-4k.
+- Review notes/timecodes: [[REVIEW_NOTES_AND_TIMECODES]].
+- Scene regeneration: [[SCENE_ID_OR_ALL]].
+- Storyboard/pronunciation/licensed asset references: [[VIDEO_REVIEW_INPUTS]].
+
+Input gate
+Stop if a placeholder remains or review rights are incomplete.
+
+Source order
+Read repository instructions, [[PROJECT_ROOT]]/video/README.md, package/lockfile, manifest/schema, voice selection,
+licence records and review notes.
+
+Work and acceptance
+From video/: run npm ci when needed; npm run video:validate -- --check; npm run
+video:assets -- --write; regenerate with npm run video:voice -- --scene
+[[SCENE_ID_OR_ALL]] --write, or use --all when the value is ALL; run npm run
+video:align -- --write; npm run video:preview -- --write; npm test; npm run
+typecheck; npm run video:render -- --profile [[REVIEW_PROFILE]] --write; inspect
+the matching build/review/report*.json. Run master-4k with --check and list every
+remaining gate. Fix in-scope review defects and repeat until the report passes.
+
+Return and permissions
+Return commands/exit codes, changed generated assets, render/report paths, media
+specs and remaining master gates. Do not bypass licences, render master-4k,
+package, commit, push or publish.</pre>
+      </div>
+    </section>
+
+    <!-- Anexo: operación 7.6 -->
+    <section class="slide" id="annex-operational-7-6">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> Anexo operativo · 7.6 — Preparar despliegue</p>
+        <h2>Crear <em>dist/</em> sin publicar.</h2>
+<pre class="prompt en" data-prompt-id="7.6">Outcome
+Rebuild and verify [[PROJECT_ROOT]]/deploy/dist without publishing it.
+
+Inputs
+- Project root: [[PROJECT_ROOT]].
+- Expected publishable file contract: [[DIST_FILE_CONTRACT]].
+- Intended final URL for QR test: [[FINAL_URL_OR_NONE]].
+
+Input gate
+Stop if a placeholder remains.
+
+Source order
+Read repository instructions, target README, finish.sh, landing/package scripts
+and deploy tooling.
+
+Work and acceptance
+Run finish.sh end to end and stop on audit failure. Assert dist matches
+[[DIST_FILE_CONTRACT]], contains only publishable static files and contains no
+.mjs, README, secret or credential. If [[FINAL_URL_OR_NONE]] is not NONE, test
+QR generation with that URL; otherwise do not invent one.
+
+Return and permissions
+Return commands/exit codes, audit result, recursive dist listing and QR paths or
+the stated omission. Do not run wrangler login/deploy, commit, push or publish.</pre>
+      </div>
+    </section>
+
+    <!-- Anexo: operación 7.7 -->
+    <section class="slide" id="annex-operational-7-7">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> Anexo operativo · 7.7 — Publicar</p>
+        <h2>Publica solo cuando exista <em>una autorización expresa</em>.</h2>
+<pre class="prompt en small" data-prompt-id="7.7">Outcome
+Publish the already verified static package for [[PRODUCT_NAME]] to Cloudflare
+Workers as [[PROJECT_SLUG]]. This prompt is explicit authorization to publish
+that package only.
+
+Inputs
+- Product/slug: [[PRODUCT_NAME]]; [[PROJECT_SLUG]].
+- Project root: [[PROJECT_ROOT]].
+- Cloudflare account/team: [[CLOUDFLARE_ACCOUNT_OR_TEAM]].
+- Expected workers.dev/custom URL: [[EXPECTED_FINAL_URL]].
+- Approved dist contract: [[DIST_FILE_CONTRACT]].
+
+Input gate
+Stop if a placeholder remains. Confirm the active account/team without printing
+credentials. If authentication or account selection is ambiguous, stop.
+
+Source order
+Read repository instructions, deployment runbook, finish.sh and deploy tooling.
+
+Work and acceptance
+Rerun finish.sh; stop on any failure. Assert dist matches [[DIST_FILE_CONTRACT]].
+Run npx wrangler deploy --assets [[PROJECT_ROOT]]/deploy/dist --name
+[[PROJECT_SLUG]]. Verify [[EXPECTED_FINAL_URL]] responds successfully and serves
+the expected build. Generate QR SVG/PNG by passing that exact URL to make-qr.py.
+
+Return and permissions
+Return audit/deploy commands and exit codes, deployment identifier/URL, response
+verification and QR paths. Do not change application source, commit or push.</pre>
+      </div>
+    </section>
+
+    <!-- Anexo: operación 7.8 -->
+    <section class="slide" id="annex-operational-7-8">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> Anexo operativo · 7.8 — Commit</p>
+        <h2>Crear un commit revisado <em>sin hacer push</em>.</h2>
+<pre class="prompt en" data-prompt-id="7.8">Outcome
+Create one reviewed Conventional Commit containing only [[FILES_TO_COMMIT]].
+
+Inputs
+- Exact files to commit: [[FILES_TO_COMMIT]].
+- Commit message: [[CONVENTIONAL_COMMIT_MESSAGE]].
+- Required checks: [[CHECKS_BEFORE_COMMIT]].
+
+Input gate
+Stop if a placeholder remains or [[FILES_TO_COMMIT]] does not resolve to an exact
+reviewable file list.
+
+Source order
+Read repository instructions, git status and the full diff. Identify unrelated
+or pre-existing changes before staging anything.
+
+Work and acceptance
+Run [[CHECKS_BEFORE_COMMIT]] and stop if any fails. Stage exactly
+[[FILES_TO_COMMIT]]; exclude generated outputs not meant for version control,
+secrets, credentials and unrelated changes. Review the staged diff, then commit
+with [[CONVENTIONAL_COMMIT_MESSAGE]]. Verify the committed file list.
+
+Return and permissions
+Return commit hash, subject, committed files and checks/exit codes. Do not amend,
+push, publish or stage any other file.</pre>
+      </div>
+    </section>
+
+    <!-- Anexo: operación 7.9 -->
+    <section class="slide" id="annex-operational-7-9">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> Anexo operativo · 7.9 — Goal persistente</p>
+        <h2>Configurar un Goal con <em>alcance y finalización verificables</em>.</h2>
+<pre class="prompt en small" data-prompt-id="7.9">/goal Complete [[GOAL_OBJECTIVE]] without stopping until [[DONE_CRITERIA]].
+
+Outcome
+Deliver [[FINAL_DELIVERABLE]].
+
+Inputs
+- Goal objective: [[GOAL_OBJECTIVE]].
+- Final deliverable: [[FINAL_DELIVERABLE]].
+- Done criteria: [[DONE_CRITERIA]].
+- Work only in [[ALLOWED_PATHS]].
+- Read first: [[REFERENCE_FILES_AND_FOLDERS]].
+- Ordered checkpoints: [[ORDERED_CHECKPOINTS]].
+- At each checkpoint run: [[CHECKS_BY_CHECKPOINT]].
+- Required evidence: [[VISUAL_OR_OTHER_EVIDENCE]].
+
+Input gate
+Before editing, report a Missing inputs table and stop if a placeholder remains,
+a required source cannot be read or DONE_CRITERIA is not objectively testable.
+
+Source order
+Read applicable repository instructions, then
+[[REFERENCE_FILES_AND_FOLDERS]], then the current state under [[ALLOWED_PATHS]].
+
+Work and acceptance
+Perform safe in-scope local edits and validation without asking. Keep a compact
+progress log naming the current checkpoint, verified result, remaining work and
+blocker state. Pause only when a missing decision would materially change scope
+or require external/destructive action. Complete the checkpoints in order and
+repeat failed in-scope checks until [[DONE_CRITERIA]] is proven by the required
+evidence and no required work remains.
+
+Return and permissions
+At completion return the final deliverable, files changed, checks/exit codes,
+evidence paths and completion verdict. Do not commit, push, publish, deploy or
+modify outside [[ALLOWED_PATHS]] unless separately authorized.</pre>
+      </div>
+    </section>
+
+    <!-- Anexo: operación 7.10 -->
+    <section class="slide" id="annex-operational-7-10">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> Anexo operativo · 7.10 — AGENTS.md y CLAUDE.md</p>
+        <h2>Configurar el paquete web y audiovisual <em>sin duplicar reglas</em>.</h2>
+<pre class="prompt en small" data-prompt-id="7.10">Outcome
+Create or normalize [[PROJECT_ROOT]]/AGENTS.md and
+[[PROJECT_ROOT]]/CLAUDE.md for the [[PRODUCT_NAME]] web-and-media package in
+one pass. AGENTS.md must be the canonical contract; CLAUDE.md must be a thin
+adapter or a relative symbolic link to it.
+
+Inputs
+- Project/product/root: [[PROJECT_NAME]], [[PRODUCT_NAME]], [[PROJECT_ROOT]].
+- Product sources: [[PRODUCT_SOURCES]].
+- Brand and white-label client sources: [[BRAND_SOURCES]].
+- Canonical case file: [[CANONICAL_CASE_FILE]].
+- Existing project commands and documentation: [[PROJECT_COMMANDS_AND_DOCS]].
+- Reference project: [[REFERENCE_PROJECT_ROOT_OR_NONE]].
+- Include 3D: [[INCLUDE_3D_YES_OR_NO]].
+- Include video: [[INCLUDE_VIDEO_YES_OR_NO]].
+- Cross-review cadence and fail threshold:
+  [[CROSS_REVIEW_CADENCE_AND_FAIL_THRESHOLD]].
+- Verified Claude-only differences: [[CLAUDE_SPECIFIC_DIFFERENCES_OR_NONE]].
+- Prefer a relative Claude symlink when no differences exist:
+  [[PREFER_CLAUDE_SYMLINK_YES_OR_NO]].
+
+Input gate
+Stop if a placeholder remains, [[PROJECT_ROOT]] cannot be read or sources and
+commands conflict without an authority order. NONE is valid only for *_OR_NONE.
+
+Source order
+Read applicable parent repository instructions, this playbook, existing target
+instruction files, [[PROJECT_COMMANDS_AND_DOCS]], [[PRODUCT_SOURCES]],
+[[BRAND_SOURCES]], COPY.md and data/[[CANONICAL_CASE_FILE]], then
+[[REFERENCE_PROJECT_ROOT_OR_NONE]] for architecture and quality only.
+
+Work and acceptance
+1. Write one concise root AGENTS.md specifically for this package. State that
+   landing, presentation, canonical data, captures, optional 3D/video and
+   deployable files must describe the same approved product and canonical case.
+2. Define scope; source order; .gitignore/COPY.md/data/landing/capture/captures/
+   video/deploy/wrangler map; editable versus generated files; natural es-ES and truthful content;
+   local-asset/no-CDN rules; feature flags; commands; visual evidence; licences;
+   secret handling; repository access; main-to-protected-development deployment;
+   cross-agent review cadence; and commit/push/publish/spend
+   boundaries. Add concise Code Review Rules with the behavior to flag, evidence
+   required, safe path and [[CROSS_REVIEW_CADENCE_AND_FAIL_THRESHOLD]]; leave
+   formatting and lint checks in CI.
+3. Include only paths and commands verified in the target. Make 3D and video
+   rules conditional on [[INCLUDE_3D_YES_OR_NO]] and
+   [[INCLUDE_VIDEO_YES_OR_NO]]. Do not add rules outside this web-and-media
+   package.
+4. Do not create nested AGENTS.md files unless a verified directory-specific
+   difference requires one. When needed, include only the delta.
+5. When [[PREFER_CLAUDE_SYMLINK_YES_OR_NO]] is YES, the Claude-only differences
+   are NONE and the repository and environment preserve symbolic links, create
+   the relative link `CLAUDE.md -> AGENTS.md`; verify it with `test -L`,
+   `readlink` and a readable resolved target. Otherwise write a short CLAUDE.md
+   adapter that tells Claude to read the root and applicable nested AGENTS.md
+   files. AGENTS.md owns scope, sources, architecture, commands, generated
+   files, verification and permissions. Add only
+   [[CLAUDE_SPECIFIC_DIFFERENCES_OR_NONE]]; when NONE, state that there are none.
+6. Review both files together and remove every duplicated or conflicting rule.
+
+Acceptance
+AGENTS.md completely describes the web-and-media workflow without unrelated
+platform rules; CLAUDE.md is either a verified relative link or a thin adapter;
+every command/path is verified or explicitly conditional; and the two paths
+contain no contradiction or duplicate source of truth. Review the complete diff.
+
+Return and permissions
+Return the selected CLAUDE.md strategy, files or link changed, sources and
+commands verified, conflicts resolved or left open, final precedence map and
+validation performed. Edit only
+[[PROJECT_ROOT]]/AGENTS.md and [[PROJECT_ROOT]]/CLAUDE.md. Do not install, edit
+user-level configuration, commit, push or publish.</pre>
+      </div>
+    </section>
+
+    <!-- Anexo: operación 7.11 -->
+    <section class="slide" id="annex-operational-7-11">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> Anexo operativo · 7.11 — Mac y acceso a modelos</p>
+        <h2>Auditar el entorno <em>antes de instalar o cambiar nada</em>.</h2>
+<pre class="prompt en dense" data-prompt-id="7.11">Outcome
+Audit this Mac and authenticated model access for the [[PROJECT_NAME]] web-and-
+media workflow. This is read-only: do not install, update or authenticate.
+
+Inputs
+- Project name: [[PROJECT_NAME]].
+- Project root: [[PROJECT_ROOT]].
+- Required tool/version baseline: [[TOOL_VERSION_BASELINE]].
+- Intended providers/accounts: [[INTENDED_AI_PROVIDERS]].
+- Task types to recommend models for: [[TASK_TYPE_MATRIX]].
+- Approved design references (Figma, screenshots, brand files or URLs):
+  [[DESIGN_REFERENCES_OR_NONE]].
+
+Input gate
+Stop if a placeholder remains or the intended account/provider scope is unclear.
+
+Source order
+Read repository instructions, this playbook, project README/package/lockfiles
+and prerequisites. Use current official provider
+documentation and the relevant Design Arena category; rankings are time-sensitive.
+
+Work and acceptance
+Verify macOS/Xcode Command Line Tools; Git; Node/npm; Python 3.11; uv; FFmpeg/
+ffprobe; Codex app/CLI and signed-in access; Claude Code and signed-in access;
+project-local Playwright/Remotion dependencies; and intentional Kimi setup.
+From authenticated local pickers/catalogues, verify the exact models behind
+Claude best/fable/opus/sonnet and Codex GPT-5.6 Sol/Terra/Luna. A model
+name in documentation alone is not proof of account access.
+
+For every design task in [[TASK_TYPE_MATRIX]], require an approved reference from
+[[DESIGN_REFERENCES_OR_NONE]] when it is not NONE. Recommend Fable for visual
+direction, composition alternatives and design critique; recommend Codex for
+turning Figma/screenshots/brand references into responsive, accessible code with
+browser and visual checks. When the task includes both, recommend the handoff
+Fable -> Codex and state the evidence transferred between them.
+
+Acceptance
+Return a table: item; detected version/access; baseline; ready/outdated/missing/
+blocked; evidence; exact later action. Recommend one model per [[TASK_TYPE_MATRIX]]
+with quality/speed/cost/context trade-offs, then give the minimal ordered
+remediation plan.
+
+Return and permissions
+Return the audit table, model-by-task recommendation and ordered remediation plan.
+Do not print tokens, credentials, cookies or private account data. Do not change
+the Mac, install software, sign in, edit account settings, commit, push or publish.</pre>
+      </div>
+    </section>
+
+    <!-- Anexo: operación 7.12 -->
+    <section class="slide" id="annex-operational-7-12">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> Anexo operativo · 7.12 — Auditoría cruzada</p>
+        <h2>Revisar una funcionalidad con <em>contexto y criterio independientes</em>.</h2>
+<pre class="prompt en dense" data-prompt-id="7.12">Outcome
+Independently audit [[FEATURE_NAME]] in [[PROJECT_ROOT]] across product/content,
+design/UX and engineering/QA. Review only; do not modify files. Decide whether
+the change is ready to merge or publish and prove the decision with evidence.
+
+Inputs
+- Project root: [[PROJECT_ROOT]].
+- Feature and acceptance criteria: [[FEATURE_NAME]]; [[ACCEPTANCE_CRITERIA]].
+- Exact review range or paths: [[BASE_REF]]...[[HEAD_REF]];
+  [[IN_SCOPE_PATHS]].
+- Approved product, copy, brand and design sources: [[APPROVED_SOURCES]].
+- Required commands and evidence: [[REQUIRED_CHECKS_AND_EVIDENCE]].
+- Producing agent/model, for independence only: [[PRODUCER_AGENT_OR_MODEL]].
+- Review mode: [[MANUAL_FRESH_AGENT_OR_MULTI_AGENT_SWARM]].
+- Available reviewer models/agents: [[AVAILABLE_REVIEWERS]].
+- Blocking severity: [[BLOCKING_SEVERITY]].
+
+Input gate
+Stop if a placeholder remains, the range is ambiguous, acceptance criteria are
+not testable, approved sources are unavailable or the requested reviewer cannot
+be independent of the producer. If swarm execution is unavailable, state that
+fact and continue sequentially in one fresh review task only when authorized.
+
+Source order
+Read applicable repository instructions, acceptance criteria, approved product/
+copy/brand/design sources, the exact diff, affected source files, tests and the
+existing evidence. Treat the producer summary as context, never as proof.
+
+Work and acceptance
+1. Confirm the resolved base/head commits, changed files and excluded changes.
+   Do not review an unspecified working tree or unrelated user changes.
+2. Run the existing safe checks in [[REQUIRED_CHECKS_AND_EVIDENCE]]. Record
+   commands, exit codes, screenshots and report paths; never replace a failing
+   deterministic check with model opinion.
+3. In MANUAL_FRESH_AGENT mode, review the following lanes sequentially. In
+   MULTI_AGENT_SWARM mode, assign each lane to an independent specialist and
+   have one coordinator synthesize only after every specialist returns:
+   - Product/content: source fidelity, claims, terminology, canonical data,
+     missing states and alignment with [[ACCEPTANCE_CRITERIA]].
+   - Design/UX: approved reference, brand, hierarchy, responsive behavior,
+     accessibility, motion, real-browser captures and content clarity.
+   - Engineering/QA: architecture, regressions, edge cases, tests, console and
+     network errors, performance, security, generated files and delivery gates.
+4. Each finding must include severity, lane, exact file/line or screen/state,
+   reproduction, observed evidence, violated criterion and smallest safe fix.
+   Do not count duplicated findings as votes and do not report preferences as
+   defects without a source or acceptance criterion.
+5. The coordinator deduplicates findings, resolves contradictions from evidence
+   and returns one ordered ledger. Any finding at or above
+   [[BLOCKING_SEVERITY]] makes the verdict NOT READY. Otherwise return READY
+   WITH NOTES or READY. A producing agent may fix findings only in a later task;
+   an independent reviewer must verify blockers after the fix.
+
+Return and permissions
+Return scope, reviewer-to-lane routing, checks/exit codes, evidence paths, the
+ordered finding ledger, unresolved disagreements and READY/NOT READY verdict.
+Do not edit, install, stage, commit, push, publish, deploy or expose secrets.</pre>
+      </div>
+    </section>
+
+    <!-- Anexo: operación 7.13 -->
+    <section class="slide" id="annex-operational-7-13">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> Anexo operativo · 7.13 — Control automático</p>
+        <h2>Automatizar la revisión <em>sin dar permisos innecesarios</em>.</h2>
+<pre class="prompt en dense" data-prompt-id="7.13">Outcome
+Implement a safe repository-local audit gate for [[PROJECT_ROOT]] that runs the
+project checks and an approved independent review at [[TRIGGER_POLICY]]. It must
+report against an exact commit range, preserve human approval and never modify
+the reviewed branch.
+
+Inputs
+- Project/root and CI provider: [[PROJECT_NAME]]; [[PROJECT_ROOT]];
+  [[CI_PROVIDER]].
+- Existing CI/workflow paths allowed to change: [[ALLOWED_CI_PATHS]].
+- Trigger policy: [[TRIGGER_POLICY]], for example pull request ready for review,
+  feature-ready label, every [[N]] thematic commits, release candidate or manual.
+- Base/head resolution rule: [[BASE_AND_HEAD_RULE]].
+- Deterministic project checks: [[REQUIRED_CHECKS]].
+- Approved review integration/command: [[APPROVED_REVIEW_INTEGRATION]].
+- Review rules and blocking severity: [[REVIEW_RULES]];
+  [[BLOCKING_SEVERITY]].
+- Report formats/paths: [[REPORT_ARTIFACTS]].
+- Permissions, timeout, concurrency and spend limits:
+  [[SECURITY_AND_COST_LIMITS]].
+
+Input gate
+Stop before editing if a placeholder remains; trigger or base/head semantics are
+ambiguous; no approved review integration exists; fork/secret behavior is unsafe;
+or [[ALLOWED_CI_PATHS]] does not cover the required change. Never invent an API,
+credential, model entitlement or provider-specific feature. A manual UI/admin
+step may be returned as a blocker, but must not be claimed as configured.
+
+Source order
+Read repository instructions, existing AGENTS.md Code Review Rules, current CI,
+package/lockfiles, documented project commands and official documentation for
+[[CI_PROVIDER]] and [[APPROVED_REVIEW_INTEGRATION]]. Reuse the current stack.
+
+Work and acceptance
+1. Resolve [[TRIGGER_POLICY]] to explicit events and conditions. Prefer feature
+   or pull-request boundaries over raw commit counts; when [[N]] commits is
+   required, define exactly which branch and commit range is counted.
+2. Implement manual dispatch plus the authorized automatic trigger. Use least
+   privilege, pinned action/tool versions, timeouts, concurrency cancellation
+   for stale runs and no write permission to the reviewed branch.
+3. Compute and print the exact base/head SHAs. Run [[REQUIRED_CHECKS]] first and
+   stop the review stage on deterministic failure while still publishing the
+   report. Never send secrets or unapproved repository content to a provider.
+4. Run [[APPROVED_REVIEW_INTEGRATION]] with the same three lanes and finding
+   contract as prompt 7.12. Keep reviewers independent of the producing agent
+   where the integration supports routing; otherwise disclose the limitation.
+5. Publish [[REPORT_ARTIFACTS]] as a job summary and retained artifact. Fail the
+   gate only for deterministic check failures or findings at/above
+   [[BLOCKING_SEVERITY]]. Do not auto-fix, auto-commit, auto-merge or deploy.
+6. Validate workflow syntax and every available local dry-run/check. Demonstrate
+   event-to-job mapping, changed-file/range handling, failure behavior, artifact
+   creation and the safe path for forked or untrusted contributions.
+
+Return and permissions
+Return files changed, trigger matrix, permissions, base/head rule, commands and
+exit codes, validation evidence, report locations, required manual admin steps
+and remaining blockers. Do not commit, push, merge, publish, deploy, change
+repository settings or execute paid review calls unless separately authorized.</pre>
+      </div>
+    </section>
+
+    <!-- Anexo: operación 7.14 -->
+    <section class="slide" id="annex-operational-7-14">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> Anexo operativo · 7.14 — Repositorio y .gitignore</p>
+        <h2>Preparar Git <em>sin versionar secretos ni resultados regenerables</em>.</h2>
+<pre class="prompt en dense" data-prompt-id="7.14">Outcome
+Initialize or normalize the Git repository for [[PROJECT_NAME]] at
+[[PROJECT_ROOT]], produce a project-specific .gitignore and verify authorized
+access to the exact remote repository without exposing credentials.
+
+Inputs
+- Project/root: [[PROJECT_NAME]]; [[PROJECT_ROOT]].
+- Git provider, organization and repository: [[GIT_PROVIDER]];
+  [[ORGANIZATION]]; [[REPOSITORY_URL_OR_NEW_REPOSITORY_NAME]].
+- Authorized mode: [[VERIFY_EXISTING_OR_CREATE_AND_CONNECT]].
+- Default branch and protection requirements: main;
+  [[MAIN_PROTECTION_REQUIREMENTS]].
+- Paths that must remain tracked: [[REQUIRED_TRACKED_PATHS]].
+- Generated, local and secret paths: [[GENERATED_LOCAL_SECRET_PATHS]].
+- Approved secret scanner and commands: [[SECRET_SCAN_COMMAND]];
+  [[PROJECT_CHECK_COMMANDS]].
+- Authorization to create a remote, stage, commit or push: [[EXACT_GIT_AUTHORIZATION]].
+
+Input gate
+Stop before changing files if a placeholder remains, [[PROJECT_ROOT]] is
+ambiguous, the target remote cannot be identified exactly or the requested
+external operation is not explicitly authorized. Never display authentication
+tokens, create a public repository by assumption, rewrite history or remove
+unrelated user changes.
+
+Source order
+Read applicable repository instructions, this playbook, the project map,
+package and lockfiles, build/capture/video/deploy scripts, existing ignore
+files and the Git provider's official documentation. Inspect before editing.
+
+Work and acceptance
+1. Determine whether [[PROJECT_ROOT]] is already a Git worktree, identify its
+   root, current branch, remotes and working-tree changes, and preserve all
+   unrelated changes. Verify access without printing credentials.
+2. Create or refine [[PROJECT_ROOT]]/.gitignore. Exclude .env and .dev.vars
+   values, private keys, dependencies, caches, logs, Playwright reports, raw
+   captures, video build/out/dist, deploy/dist and temporary files. Keep source,
+   approved content/data/brand assets, licenses, package/lockfiles, AGENTS.md,
+   CLAUDE.md, wrangler configuration and example environment files trackable.
+3. Prove representative rules with git check-ignore -v and prove required
+   source files are not ignored. Run [[SECRET_SCAN_COMMAND]] and
+   [[PROJECT_CHECK_COMMANDS]]; record commands and exit codes.
+4. In VERIFY_EXISTING mode, report remote access and missing protection only.
+   In CREATE_AND_CONNECT mode, create or connect exactly the authorized private
+   repository, set main and apply [[MAIN_PROTECTION_REQUIREMENTS]] only when the
+   available official tooling and permissions support each operation.
+5. Show git status --short and the proposed tracked/ignored boundary. Stage,
+   commit or push only when [[EXACT_GIT_AUTHORIZATION]] names that exact action;
+   otherwise stop with the repository ready for human review.
+
+Return and permissions
+Return files changed, resolved root/branch/remote, ignore-rule evidence, secret
+scan and check results, access/protection status and manual admin steps. Do not
+commit, push, change repository visibility or settings, create a remote or print
+credentials unless that exact action was explicitly authorized.</pre>
+      </div>
+    </section>
+
+    <!-- Anexo: operación 7.15 -->
+    <section class="slide" id="annex-operational-7-15">
+      <div class="slide-inner">
+        <p class="eyebrow"><i></i> Anexo operativo · 7.15 — Desarrollo continuo</p>
+        <h2>Conectar <code>main</code> con <em>un entorno de pruebas protegido</em>.</h2>
+<pre class="prompt en dense" data-prompt-id="7.15">Outcome
+Configure and prove a safe Cloudflare Workers development deployment for
+[[PROJECT_NAME]]: every push to main in the exact authorized repository must run
+the project checks and deploy only to [[DEV_WORKER_NAME]] at [[DEV_SUBDOMAIN]].
+Production must remain separate and unchanged.
+
+Inputs
+- Project/root: [[PROJECT_NAME]]; [[PROJECT_ROOT]].
+- Git provider/repository/branch: [[GIT_PROVIDER]]; [[REPOSITORY_URL]]; main.
+- Cloudflare account and development Worker: [[CLOUDFLARE_ACCOUNT]];
+  [[DEV_WORKER_NAME]], normally [[PROJECT_SLUG]]-dev.
+- Protected development URL: [[DEV_SUBDOMAIN]].
+- Authorized Cloudflare Access users/groups and policy: [[ACCESS_POLICY]].
+- Build root, install, check, package and deploy commands:
+  [[BUILD_ROOT]]; [[INSTALL_COMMAND]]; [[CHECK_COMMANDS]];
+  [[PACKAGE_COMMAND]]; [[DEPLOY_COMMAND]].
+- Allowed local paths and external settings: [[ALLOWED_PATHS_AND_SETTINGS]].
+- Authorization for provider changes and a validation push:
+  [[EXACT_EXTERNAL_AND_PUSH_AUTHORIZATION]].
+
+Input gate
+Stop before editing or changing external state if a placeholder remains; the
+repository, account, Worker or subdomain is ambiguous; main contains unreviewed
+changes; the commands do not produce deploy/dist; or authorization does not
+cover the exact Git and Cloudflare settings. Never infer a production route,
+weaken Access, print secrets or claim that a manual dashboard step was applied.
+
+Source order
+Read repository instructions, .gitignore, package/lockfiles, finish.sh, deploy
+scripts, existing Wrangler configuration and official Cloudflare documentation
+for Workers Builds Git integration, build configuration, routes and Access.
+
+Work and acceptance
+1. Verify read access to [[REPOSITORY_URL]], the main branch, its required
+   checks and the current Cloudflare account. Confirm that [[DEV_WORKER_NAME]]
+   and [[DEV_SUBDOMAIN]] cannot route production traffic.
+2. Add or normalize versioned Wrangler configuration for the development Worker
+   only. Keep secrets in Cloudflare settings, never in Git. Pin the supported
+   Node/package-manager version and preserve the lockfile.
+3. Connect Workers Builds to the exact repository and select main. Configure the
+   documented install/build/deploy commands so checks run before packaging and a
+   failure prevents deployment. Cloudflare may call main the production branch
+   of this Worker; the Worker itself must still be the isolated -dev project.
+4. Route [[DEV_SUBDOMAIN]] to [[DEV_WORKER_NAME]] and protect it with Cloudflare
+   Access for [[ACCESS_POLICY]]. Verify an authorized session succeeds and an
+   unauthenticated request is denied. Do not attach any production hostname.
+5. If a validation push is explicitly authorized, push one traceable change to
+   main and prove the resulting build/deployment serves that exact commit SHA.
+   Otherwise validate locally and return the precise remaining manual action.
+6. Prove failure behavior without damaging main: a failed check must not replace
+   the last valid development deployment. Record build/deployment identifiers,
+   URL, commit SHA, commands, exit codes and rollback procedure.
+
+Return and permissions
+Return files changed, resolved repository/branch, build settings, protected URL,
+Access evidence, deployed SHA, failure-path evidence, rollback and remaining
+manual steps. Do not change production, commit, push, deploy, change Git or
+Cloudflare settings, incur spend or expose secrets beyond the exact explicit
+authorization in [[EXACT_EXTERNAL_AND_PUSH_AUTHORIZATION]].</pre>
+        <p class="prompt-ref">Referencias oficiales: <a href="https://developers.cloudflare.com/workers/ci-cd/builds/git-integration/" target="_blank" rel="noopener noreferrer">Git integration</a> · <a href="https://developers.cloudflare.com/workers/ci-cd/builds/configuration/" target="_blank" rel="noopener noreferrer">Workers Builds configuration</a> · <a href="https://developers.cloudflare.com/workers/configuration/routing/workers-dev/" target="_blank" rel="noopener noreferrer">workers.dev y Access</a>.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="hint"><kbd>←</kbd><kbd>→</kbd> <span>navegar</span></div>
+    <div class="dots" id="dots"></div>
+    <div class="nav">
+      <button id="prev" aria-label="Anterior">←</button>
+      <button id="next" aria-label="Siguiente">→</button>
+    </div>
+  </footer>
+
+  <button class="navigator-backdrop" id="navigator-backdrop" type="button" tabindex="-1" aria-label="Cerrar índice de diapositivas"></button>
+  <aside class="slide-navigator" id="slide-navigator" role="dialog" aria-modal="true" aria-labelledby="navigator-title" aria-hidden="true">
+    <div class="navigator-heading">
+      <h2 id="navigator-title">Todas las diapositivas</h2>
+      <div class="navigator-search">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.75"></circle><path d="m10.5 10.5 3.25 3.25"></path></svg>
+        <input id="navigator-search" type="search" placeholder="Buscar por tema, palabra o comando…" autocomplete="off" spellcheck="false" aria-label="Buscar en títulos y contenido">
+        <button id="navigator-search-clear" type="button" aria-label="Borrar búsqueda" title="Borrar búsqueda" hidden>×</button>
+      </div>
+      <p><span id="navigator-summary" aria-live="polite">49 diapositivas</span><span><kbd>Esc</kbd> limpiar / cerrar</span></p>
+    </div>
+    <div class="navigator-list" id="navigator-list"><p class="navigator-empty" id="navigator-empty" hidden>No hay diapositivas que contengan esa búsqueda.</p></div>
+  </aside>
+
+  <script>
+    const slides = [...document.querySelectorAll(".slide")]
+    const dots = document.getElementById("dots")
+    const current = document.getElementById("current")
+    const navigatorSearchToggle = document.getElementById("navigator-search-toggle")
+    const navigatorToggle = document.getElementById("navigator-toggle")
+    const navigatorPanel = document.getElementById("slide-navigator")
+    const navigatorList = document.getElementById("navigator-list")
+    const navigatorBackdrop = document.getElementById("navigator-backdrop")
+    const navigatorSearch = document.getElementById("navigator-search")
+    const navigatorSearchClear = document.getElementById("navigator-search-clear")
+    const navigatorEmpty = document.getElementById("navigator-empty")
+    const navigatorSummary = document.getElementById("navigator-summary")
+    let navigatorItems = []
+    let navigatorOpen = false
+    document.getElementById("total").textContent = String(slides.length).padStart(2, "0")
+    navigatorSummary.textContent = `${slides.length} diapositivas`
+
+    const buttons = slides.map((_, index) => {
+      const button = document.createElement("button")
+      button.setAttribute("aria-label", `Ir a la diapositiva ${index + 1}`)
+      button.addEventListener("click", () => show(index))
+      dots.append(button)
+      return button
+    })
+
+    let active = 0
+    const show = (index) => {
+      active = Math.max(0, Math.min(slides.length - 1, index))
+      slides.forEach((slide, i) => slide.classList.toggle("active", i === active))
+      buttons.forEach((button, i) => button.classList.toggle("active", i === active))
+      navigatorItems.forEach((item, i) => {
+        item.classList.toggle("active", i === active)
+        if (i === active) item.setAttribute("aria-current", "page")
+        else item.removeAttribute("aria-current")
+      })
+      current.textContent = String(active + 1).padStart(2, "0")
+    }
+
+    const fallbackCopy = (text) => {
+      const textarea = document.createElement("textarea")
+      textarea.value = text
+      textarea.setAttribute("readonly", "")
+      textarea.style.position = "fixed"
+      textarea.style.left = "-9999px"
+      textarea.style.opacity = "0"
+      document.body.append(textarea)
+      textarea.select()
+      const copied = document.execCommand("copy")
+      textarea.remove()
+      if (!copied) throw new Error("Clipboard copy failed")
+    }
+
+    const copyText = async (text) => {
+      try {
+        if (!navigator.clipboard?.writeText) throw new Error("Clipboard API unavailable")
+        await navigator.clipboard.writeText(text)
+      } catch {
+        fallbackCopy(text)
+      }
+    }
+
+    const copyTimers = new WeakMap()
+    document.querySelectorAll("pre.prompt:not(.result), pre.copyable").forEach((prompt, index) => {
+      if (prompt.dataset.promptId || prompt.matches(".copyable")) {
+        prompt.tabIndex = 0
+        const blockName = prompt.dataset.copyLabel || `Prompt ${prompt.dataset.promptId}`
+        prompt.setAttribute("aria-label", `${blockName}; desplázate dentro del bloque para leerlo completo`)
+      }
+      const shell = document.createElement("div")
+      shell.className = "prompt-shell"
+      prompt.before(shell)
+      shell.append(prompt)
+
+      const button = document.createElement("button")
+      button.type = "button"
+      button.className = "copy-prompt"
+      button.dataset.promptIndex = String(index)
+      const copyName = prompt.dataset.copyLabel || (prompt.dataset.promptId ? `prompt ${prompt.dataset.promptId}` : `prompt ${index + 1}`)
+      button.setAttribute("aria-label", `Copiar ${copyName} al portapapeles`)
+      button.title = `Copiar ${copyName}`
+      button.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5.25" y="5.25" width="8" height="8" rx="1.5"></rect><path d="M10.75 5.25V3.5A1.75 1.75 0 0 0 9 1.75H3.5A1.75 1.75 0 0 0 1.75 3.5V9A1.75 1.75 0 0 0 3.5 10.75h1.75"></path></svg>'
+      shell.append(button)
+
+      if (prompt.dataset.promptId || prompt.matches(".copyable") || prompt.closest(".prompt-examples, .prompt-preflight")) {
+        const scrollHint = document.createElement("span")
+        scrollHint.className = "prompt-scroll-hint"
+        scrollHint.setAttribute("aria-hidden", "true")
+        scrollHint.textContent = "↕ Leer"
+        shell.append(scrollHint)
+      }
+
+      button.addEventListener("click", async () => {
+        const promptText = prompt.textContent.replace(/\r\n/g, "\n").replace(/^\n+|\n+$/g, "")
+        const previousTimer = copyTimers.get(button)
+        if (previousTimer) clearTimeout(previousTimer)
+        button.classList.remove("copied", "copy-error")
+        try {
+          await copyText(promptText)
+          button.classList.add("copied")
+          button.setAttribute("aria-label", `${copyName} copiado al portapapeles`)
+          button.title = "Copiado"
+        } catch {
+          button.classList.add("copy-error")
+          button.setAttribute("aria-label", `No se pudo copiar ${copyName}`)
+          button.title = "No se pudo copiar"
+        }
+        copyTimers.set(button, setTimeout(() => {
+          button.classList.remove("copied", "copy-error")
+          button.setAttribute("aria-label", `Copiar ${copyName} al portapapeles`)
+          button.title = `Copiar ${copyName}`
+        }, 1800))
+      })
+    })
+
+    const cleanThumbnailClone = (clone) => {
+      clone.classList.remove("slide", "active")
+      clone.classList.add("navigator-slide")
+      clone.removeAttribute("id")
+      clone.setAttribute("aria-hidden", "true")
+      clone.querySelectorAll("[id]").forEach((node) => node.removeAttribute("id"))
+      clone.querySelectorAll("[tabindex]").forEach((node) => node.removeAttribute("tabindex"))
+      clone.querySelectorAll("[data-slide-target]").forEach((node) => node.removeAttribute("data-slide-target"))
+      clone.querySelectorAll("a,button").forEach((control) => {
+        const replacement = document.createElement("span")
+        replacement.className = control.className
+        replacement.innerHTML = control.innerHTML
+        control.replaceWith(replacement)
+      })
+      return clone
+    }
+
+    const resizeNavigatorPreviews = () => {
+      navigatorItems.forEach((item) => {
+        const thumb = item.querySelector(".navigator-thumb")
+        const canvas = item.querySelector(".navigator-canvas")
+        if (thumb && canvas) canvas.style.setProperty("--navigator-scale", String(thumb.clientWidth / 1280))
+      })
+    }
+
+    const normalizeSearch = (value) => value
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/\s+/g, " ")
+      .trim()
+
+    const searchSnippet = (text, terms) => {
+      const compact = text.replace(/\s+/g, " ").trim()
+      if (!compact || !terms.length) return ""
+      const segments = compact.split(/(?<=[.!?])\s+|\s+[—–-]\s+/).filter(Boolean)
+      let best = compact
+      let bestScore = -1
+      segments.forEach((segment) => {
+        const normalized = normalizeSearch(segment)
+        const score = terms.reduce((total, term) => total + (normalized.includes(term) ? 1 : 0), 0)
+        if (score > bestScore || (score === bestScore && segment.length < best.length)) {
+          best = segment
+          bestScore = score
+        }
+      })
+      const words = best.split(" ")
+      if (words.length <= 28) return best
+      const normalizedWords = words.map(normalizeSearch)
+      const hit = normalizedWords.findIndex((word) => terms.some((term) => word.includes(term) || term.includes(word)))
+      const start = Math.max(0, (hit < 0 ? 0 : hit) - 8)
+      const end = Math.min(words.length, start + 28)
+      return `${start ? "…" : ""}${words.slice(start, end).join(" ")}${end < words.length ? "…" : ""}`
+    }
+
+    const visibleNavigatorItems = () => [...navigatorList.querySelectorAll(".navigator-item:not([hidden])")]
+
+    const filterNavigator = () => {
+      const query = normalizeSearch(navigatorSearch.value)
+      const terms = query.split(" ").filter(Boolean)
+      const ranked = []
+      navigatorItems.forEach((item) => {
+        const data = item.searchData
+        const matches = terms.every((term) => data.all.includes(term))
+        item.hidden = !matches
+        const match = item.querySelector(".navigator-match")
+        if (!matches) return
+        const snippet = query ? searchSnippet(data.body, terms) : ""
+        match.textContent = snippet
+        item.setAttribute("aria-label", query && snippet
+          ? `Ir a la diapositiva ${data.number}: ${data.title}. Coincidencia: ${snippet}`
+          : item.dataset.defaultLabel)
+        const score = (data.number === query ? 500 : 0)
+          + (data.titleSearch.includes(query) ? 120 : 0)
+          + (data.sectionSearch.includes(query) ? 80 : 0)
+          + (data.bodySearch.includes(query) ? 30 : 0)
+          + terms.reduce((total, term) => total
+            + (data.titleSearch.includes(term) ? 16 : 0)
+            + (data.sectionSearch.includes(term) ? 10 : 0)
+            + (data.bodySearch.includes(term) ? 2 : 0), 0)
+        ranked.push({ item, score })
+      })
+      if (query) ranked.sort((a, b) => b.score - a.score || navigatorItems.indexOf(a.item) - navigatorItems.indexOf(b.item))
+      const ordered = query ? ranked.map((entry) => entry.item) : navigatorItems
+      ordered.forEach((item) => navigatorList.append(item))
+      navigatorList.classList.toggle("has-query", Boolean(query))
+      navigatorList.scrollTop = 0
+      const visible = ranked.length
+      navigatorSearchClear.hidden = !query
+      navigatorEmpty.hidden = visible > 0
+      navigatorEmpty.textContent = query
+        ? `No hay diapositivas que contengan “${navigatorSearch.value.trim()}”. Prueba con menos palabras o con un término más general.`
+        : "No hay diapositivas que contengan esa búsqueda."
+      navigatorSummary.textContent = query
+        ? `${visible} ${visible === 1 ? "resultado" : "resultados"} · títulos y contenido`
+        : `${slides.length} diapositivas`
+      requestAnimationFrame(resizeNavigatorPreviews)
+      return visibleNavigatorItems()
+    }
+
+    slides.forEach((slide, index) => {
+      const item = document.createElement("button")
+      item.type = "button"
+      item.className = "navigator-item"
+      const number = String(index + 1).padStart(2, "0")
+      const title = slide.querySelector("h1,h2")?.textContent.replace(/\s+/g, " ").trim() || `Diapositiva ${number}`
+      const section = slide.querySelector(".eyebrow")?.textContent.replace(/\s+/g, " ").trim() || ""
+      const searchClone = slide.cloneNode(true)
+      searchClone.querySelectorAll(".copy-prompt,.prompt-scroll-hint").forEach((node) => node.remove())
+      const body = searchClone.textContent.replace(/\s+/g, " ").trim()
+      const defaultLabel = `Ir a la diapositiva ${number}: ${title}`
+      item.setAttribute("aria-label", defaultLabel)
+      item.dataset.defaultLabel = defaultLabel
+      item.searchData = {
+        number,
+        title,
+        section,
+        body,
+        titleSearch: normalizeSearch(title),
+        sectionSearch: normalizeSearch(section),
+        bodySearch: normalizeSearch(body),
+        all: normalizeSearch(`${number} ${title} ${section} ${body}`),
+      }
+
+      const thumb = document.createElement("span")
+      thumb.className = "navigator-thumb"
+      const canvas = document.createElement("span")
+      canvas.className = "navigator-canvas"
+      canvas.append(cleanThumbnailClone(slide.cloneNode(true)))
+      thumb.append(canvas)
+
+      const meta = document.createElement("span")
+      meta.className = "navigator-meta"
+      const itemNumber = document.createElement("span")
+      itemNumber.className = "navigator-number"
+      itemNumber.textContent = number
+      const copy = document.createElement("span")
+      copy.className = "navigator-copy"
+      const itemTitle = document.createElement("span")
+      itemTitle.className = "navigator-title"
+      itemTitle.textContent = title
+      const itemSection = document.createElement("span")
+      itemSection.className = "navigator-section"
+      itemSection.textContent = section
+      const itemMatch = document.createElement("span")
+      itemMatch.className = "navigator-match"
+      copy.append(itemTitle, itemSection, itemMatch)
+      meta.append(itemNumber, copy)
+      item.append(thumb, meta)
+      item.addEventListener("click", () => {
+        show(index)
+        closeNavigator()
+      })
+      navigatorList.append(item)
+      navigatorItems.push(item)
+    })
+
+    const openNavigator = ({ focusSearch = true } = {}) => {
+      navigatorOpen = true
+      document.body.classList.add("navigator-open")
+      navigatorSearchToggle.setAttribute("aria-expanded", "true")
+      navigatorToggle.setAttribute("aria-expanded", "true")
+      navigatorToggle.setAttribute("aria-label", "Cerrar índice de diapositivas")
+      navigatorToggle.title = "Cerrar índice de diapositivas"
+      navigatorPanel.setAttribute("aria-hidden", "false")
+      document.getElementById("deck").inert = true
+      document.querySelector("footer").inert = true
+      resizeNavigatorPreviews()
+      if (focusSearch) navigatorSearch.focus({ preventScroll: true })
+      requestAnimationFrame(() => {
+        navigatorItems[active]?.scrollIntoView({ block: "center" })
+        if (!focusSearch) navigatorItems[active]?.focus({ preventScroll: true })
+      })
+    }
+
+    const closeNavigator = () => {
+      if (!navigatorOpen) return
+      navigatorOpen = false
+      document.body.classList.remove("navigator-open")
+      navigatorSearchToggle.setAttribute("aria-expanded", "false")
+      navigatorToggle.setAttribute("aria-expanded", "false")
+      navigatorToggle.setAttribute("aria-label", "Abrir índice de diapositivas")
+      navigatorToggle.title = "Abrir índice de diapositivas"
+      navigatorPanel.setAttribute("aria-hidden", "true")
+      document.getElementById("deck").inert = false
+      document.querySelector("footer").inert = false
+      navigatorSearch.value = ""
+      filterNavigator()
+      navigatorToggle.focus()
+    }
+
+    navigatorToggle.addEventListener("click", () => navigatorOpen ? closeNavigator() : openNavigator())
+    navigatorSearchToggle.addEventListener("click", () => {
+      if (!navigatorOpen) openNavigator({ focusSearch: true })
+      else navigatorSearch.focus()
+    })
+    navigatorSearch.addEventListener("input", filterNavigator)
+    navigatorSearch.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        const firstResult = visibleNavigatorItems()[0]
+        if (firstResult) { event.preventDefault(); firstResult.click() }
+      } else if (event.key === "ArrowDown") {
+        const firstResult = visibleNavigatorItems()[0]
+        if (firstResult) { event.preventDefault(); firstResult.focus() }
+      } else if (event.key === "ArrowUp") {
+        const results = visibleNavigatorItems()
+        const lastResult = results[results.length - 1]
+        if (lastResult) { event.preventDefault(); lastResult.focus() }
+      } else if (event.key === "Escape" && navigatorSearch.value) {
+        event.preventDefault()
+        event.stopPropagation()
+        navigatorSearch.value = ""
+        filterNavigator()
+      }
+    })
+    navigatorSearchClear.addEventListener("click", () => {
+      navigatorSearch.value = ""
+      filterNavigator()
+      navigatorSearch.focus()
+    })
+    navigatorBackdrop.addEventListener("click", closeNavigator)
+    navigatorList.addEventListener("keydown", (event) => {
+      const item = event.target.closest(".navigator-item")
+      if (item && ["Enter", " "].includes(event.key)) {
+        event.preventDefault()
+        item.click()
+        return
+      }
+      if (!item || !["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return
+      const results = visibleNavigatorItems()
+      const position = results.indexOf(item)
+      let next = position
+      if (event.key === "ArrowDown") next = Math.min(results.length - 1, position + 1)
+      else if (event.key === "ArrowUp") {
+        if (position === 0) { event.preventDefault(); navigatorSearch.focus(); return }
+        next = Math.max(0, position - 1)
+      } else if (event.key === "Home") next = 0
+      else if (event.key === "End") next = results.length - 1
+      event.preventDefault()
+      results[next]?.focus()
+      results[next]?.scrollIntoView({ block: "nearest" })
+    })
+    window.addEventListener("resize", resizeNavigatorPreviews)
+
+    document.getElementById("prev").addEventListener("click", () => show(active - 1))
+    document.getElementById("next").addEventListener("click", () => show(active + 1))
+    document.querySelectorAll("[data-slide-target]").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        const target = document.getElementById(link.dataset.slideTarget)
+        const targetSlide = target?.closest(".slide")
+        const index = slides.indexOf(targetSlide)
+        if (index < 0) return
+        event.preventDefault()
+        show(index)
+        history.replaceState(null, "", `#${target.id}`)
+      })
+    })
+    document.addEventListener("keydown", (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault()
+        if (!navigatorOpen) openNavigator({ focusSearch: true })
+        else navigatorSearch.focus()
+        return
+      }
+      if (navigatorOpen) {
+        if (event.key === "Escape") { event.preventDefault(); closeNavigator(); return }
+        if (event.key === "Tab") {
+          const focusable = [navigatorSearchToggle, navigatorToggle, navigatorSearch, ...(navigatorSearchClear.hidden ? [] : [navigatorSearchClear]), ...visibleNavigatorItems()]
+          const position = focusable.indexOf(document.activeElement)
+          const next = event.shiftKey
+            ? (position <= 0 ? focusable.length - 1 : position - 1)
+            : (position < 0 || position === focusable.length - 1 ? 0 : position + 1)
+          event.preventDefault()
+          focusable[next].focus()
+        }
+        return
+      }
+      if (event.target.closest("input, textarea, select")) return
+      if (event.target.closest("button, a") && [" ", "Enter"].includes(event.key)) return
+      if (["ArrowRight", "ArrowDown", "PageDown", " "].includes(event.key)) { event.preventDefault(); show(active + 1) }
+      else if (["ArrowLeft", "ArrowUp", "PageUp"].includes(event.key)) { event.preventDefault(); show(active - 1) }
+      else if (event.key === "Home") { event.preventDefault(); show(0) }
+      else if (event.key === "End") { event.preventDefault(); show(slides.length - 1) }
+    })
+    const showHashTarget = () => {
+      const target = location.hash ? document.getElementById(location.hash.slice(1)) : null
+      const targetSlide = target?.closest(".slide")
+      if (targetSlide) show(slides.indexOf(targetSlide))
+    }
+    window.addEventListener("hashchange", showHashTarget)
+    resizeNavigatorPreviews()
+    if (location.hash) showHashTarget()
+    else show(0)
+  </script>
+</body>
+</html>

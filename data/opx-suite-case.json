@@ -1,0 +1,214 @@
+{
+  "meta": {
+    "id": "opx-suite-case",
+    "version": "1.0.0",
+    "locale": "es-ES",
+    "updated": "2026-08-25",
+    "title": "Una noche de evento, el ciclo completo",
+    "sources": [
+      { "id": "opx-web", "label": "https://opx.tech/ — copy aprobado de la suite (2026-08-25)" },
+      { "id": "venue-web", "label": "https://venue.opx.tech/ — copy y mock públicos de Optima Venue (2026-08-25)" },
+      { "id": "flow-web", "label": "https://flow.opx.tech/ — copy público de Optima Flow (2026-08-25)" },
+      { "id": "ficcion-caso", "label": "Escenario ficticio privacy-safe definido en este paquete; no es un claim de producto" }
+    ],
+    "notes": [
+      "Único fichero canónico: landing/sync-data.mjs regenera las regiones marcadas de landing/index.html; esas copias no se editan a mano.",
+      "Las cifras 87 %, Alto, 2 incidencias, riesgo Medio y confianza 92 % proceden del mock público de venue.opx.tech y deben mantenerse coherentes en web, caso y recreaciones.",
+      "La puntuación 114.5 del mock de flow.opx.tech pertenece al contexto de subvenciones y no se reutiliza aquí (DECISIONS.md, punto 5).",
+      "El recinto Arena Cierzo, el evento, las personas y la telemetría intermedia (63 %) son ficción del caso guiado, señalada como recreación en la propia página.",
+      "contact.email y contact.form_endpoint valen NEEDS_INPUT hasta que el equipo los facilite; mientras tanto la web no pinta mailto y el formulario permanece desactivado."
+    ]
+  },
+  "contact": {
+    "email": "NEEDS_INPUT",
+    "form_enabled": false,
+    "form_endpoint": "NEEDS_INPUT"
+  },
+  "links": {
+    "canonical_url": "https://opx.tech/",
+    "approved_hosts": ["opx.tech", "venue.opx.tech", "flow.opx.tech"],
+    "forbidden_hosts": ["opx.com"]
+  },
+  "principles": {
+    "master_claim": "La complejidad no se elimina. Se gobierna.",
+    "positioning": "OPX es una suite operativa para organizaciones que no pueden permitirse el caos.",
+    "context_close": "OPX nace para aportar claridad, coordinación y control en operaciones donde fallar no es una opción.",
+    "ia_intro": "La IA en OPX conecta datos, señales y procesos. Detecta patrones y riesgos. Resalta lo relevante. Apoya mejores decisiones humanas.",
+    "ia_principle": "La IA nunca sustituye a las personas. La IA estructura la complejidad para que las personas mantengan el control.",
+    "human_decisions_title": "Decisiones humanas, siempre",
+    "human_decisions_body": "OPX aplica inteligencia artificial bajo un principio irrenunciable: las decisiones siempre las toman las personas. OPX aporta claridad, contexto y apoyo.",
+    "agent_suggests": "El agente analiza y sugiere. Las personas deciden.",
+    "bridge_to_cta": "Enfrentarse a la complejidad sin estructura es improvisar. Conoce cómo OPX puede ayudarte a gobernarla.",
+    "cycle_claim": "Cada producto refuerza a los demás. Cada ciclo mejora el siguiente."
+  },
+  "pains": [
+    { "n": "01", "text": "Los entornos operativos evolucionan más rápido que la capacidad de adaptación de las organizaciones." },
+    { "n": "02", "text": "Cada decisión arrastra múltiples actores, restricciones y efectos en cadena." },
+    { "n": "03", "text": "Las disrupciones ya no son excepciones: son parte del día a día." },
+    { "n": "04", "text": "Sin estructura, el aprendizaje llega tarde y las mejoras nunca se consolidan." }
+  ],
+  "ia_pillars": [
+    { "n": "01", "title": "Conecta", "detail": "Datos, señales y procesos en una visión coherente." },
+    { "n": "02", "title": "Detecta", "detail": "Patrones y riesgos antes de que escalen." },
+    { "n": "03", "title": "Apoya", "detail": "Mejores decisiones humanas con contexto y claridad." }
+  ],
+  "products": [
+    {
+      "id": "venue",
+      "name": "Optima Venue",
+      "axis": "Qué gestionas",
+      "question": "¿Qué gestionamos?",
+      "question_detail": "Activos, espacios, infraestructuras.",
+      "tagline": "Claridad sobre lo que gestionas.",
+      "summary": "Optimiza la visibilidad y el control sobre activos y espacios. Detecta patrones de uso, anticipa riesgos operativos y apoya mejores decisiones sobre activos.",
+      "url": "https://venue.opx.tech/",
+      "status": "live"
+    },
+    {
+      "id": "flow",
+      "name": "Optima Flow",
+      "axis": "Cómo lo gestionas",
+      "question": "¿Cómo lo gestionamos?",
+      "question_detail": "Procesos, flujos, reglas de decisión.",
+      "tagline": "Estructura para decidir mejor.",
+      "summary": "Optimiza procesos y flujos de decisión. Identifica cuellos de botella e inconsistencias, resalta fortalezas y debilidades y explica evaluaciones complejas.",
+      "url": "https://flow.opx.tech/",
+      "status": "live"
+    },
+    {
+      "id": "response",
+      "name": "Optima Response",
+      "axis": "Cómo reaccionas",
+      "question": "¿Cómo reaccionamos?",
+      "question_detail": "Incidentes, protocolos, coordinación.",
+      "tagline": "Control cuando más importa.",
+      "summary": "Optimiza la preparación y la respuesta coordinada ante incidentes. Monitoriza señales, detecta escenarios de riesgo elevado y apoya respuestas oportunas.",
+      "url": null,
+      "status": "proximamente"
+    },
+    {
+      "id": "insight",
+      "name": "Optima Insight",
+      "axis": "Cómo aprendes",
+      "question": "¿Cómo aprendemos?",
+      "question_detail": "Análisis, patrones, mejora continua.",
+      "tagline": "Aprender para operar mejor.",
+      "summary": "Optimiza el aprendizaje y la mejora continua. Analiza operaciones e incidentes históricos, detecta patrones recurrentes y alimenta mejoras futuras.",
+      "url": null,
+      "status": "proximamente"
+    }
+  ],
+  "case": {
+    "id": "noche-evento-arena-cierzo",
+    "title": "Una noche de evento, el ciclo completo.",
+    "intro": "Un escenario realista y ficticio —el recinto Arena Cierzo durante un concierto con entradas agotadas— recorre los cuatro productos en 48 minutos.",
+    "venue_name": "Arena Cierzo",
+    "event": "Concierto con entradas agotadas",
+    "disclaimer": "Escenario ilustrativo con datos ficticios. Las pantallas son recreaciones alimentadas por el caso canónico, no capturas del producto.",
+    "states": ["pendiente", "activo", "completado", "descartado"],
+    "actors": [
+      { "id": "agente-opx", "name": "Agente OPX", "role": "Capa de apoyo operativo" },
+      { "id": "marta", "name": "Marta Ibáñez", "role": "Coordinadora de operaciones" },
+      { "id": "andres", "name": "Andrés Roca", "role": "Jefe de seguridad" },
+      { "id": "lucia", "name": "Lucía Vidal", "role": "Responsable de accesos" }
+    ],
+    "steps": [
+      {
+        "id": "s1",
+        "time": "21:38",
+        "product": "venue",
+        "actor": "agente-opx",
+        "channel": "Panel operativo",
+        "title": "Saturación detectada en la zona norte",
+        "detail": "El panel operativo de Optima Venue registra un 87 % de saturación en la zona norte, flujo alto en los accesos principales y 2 incidencias activas.",
+        "requires": []
+      },
+      {
+        "id": "s2",
+        "time": "21:39",
+        "product": "response",
+        "actor": "marta",
+        "channel": "Móvil del staff",
+        "title": "Protocolo de aforo activado",
+        "detail": "Optima Response activa el protocolo de saturación: avisa a seguridad y a accesos con la instrucción y el contexto necesarios para ejecutarla.",
+        "requires": ["s1"]
+      },
+      {
+        "id": "s3",
+        "time": "21:41",
+        "product": "response",
+        "actor": "lucia",
+        "channel": "Móvil del staff",
+        "title": "Accesos coordinados sobre el terreno",
+        "detail": "El equipo confirma cada instrucción: se refuerza la señalización y se prepara la redirección del flujo hacia los accesos secundarios.",
+        "requires": ["s2"]
+      },
+      {
+        "id": "s4",
+        "time": "21:44",
+        "product": "flow",
+        "actor": "marta",
+        "channel": "Panel de decisión",
+        "title": "La decisión queda estructurada",
+        "detail": "Optima Flow registra la evaluación con criterios explícitos: la opción elegida, la descartada y el porqué quedan trazados para la auditoría posterior.",
+        "requires": ["s3"],
+        "decision": {
+          "chosen": "redirigir",
+          "options": [
+            {
+              "id": "redirigir",
+              "label": "Redirigir el flujo a los accesos secundarios",
+              "risk": "Medio",
+              "confidence": "92 %",
+              "outcome": "aprobada",
+              "reason": "Mantiene la operación con el menor impacto para el público."
+            },
+            {
+              "id": "cerrar",
+              "label": "Cerrar temporalmente la zona norte",
+              "risk": "Alto",
+              "confidence": "—",
+              "outcome": "descartada",
+              "reason": "Interrumpe la experiencia y desplaza el problema a las zonas contiguas."
+            }
+          ]
+        }
+      },
+      {
+        "id": "s5",
+        "time": "21:52",
+        "product": "venue",
+        "actor": "agente-opx",
+        "channel": "Panel operativo",
+        "title": "La saturación remite",
+        "detail": "La telemetría del recinto confirma el efecto de la medida: la zona norte baja del 87 % al 63 % sin nuevas incidencias.",
+        "requires": ["s4"]
+      },
+      {
+        "id": "s6",
+        "time": "22:26",
+        "product": "insight",
+        "actor": "agente-opx",
+        "channel": "Informe de ciclo",
+        "title": "El incidente se convierte en patrón",
+        "detail": "Optima Insight registra el episodio, lo relaciona con eventos anteriores y propone ajustar la señalización para el próximo evento con aforo completo.",
+        "requires": ["s5"]
+      }
+    ]
+  },
+  "mocks": {
+    "venue_panel": {
+      "source": "venue-web",
+      "title": "Análisis operativo",
+      "badge": "Tiempo real",
+      "rows": [
+        { "label": "Saturación zona norte", "value": "87 %", "tone": "riesgo" },
+        { "label": "Flujo accesos principales", "value": "Alto", "tone": "aviso" },
+        { "label": "Incidencias activas", "value": "2", "tone": "neutro" }
+      ],
+      "recommendation": "Se detecta saturación en la zona norte. Se recomienda redirigir el flujo hacia los accesos secundarios y reforzar la señalización en los puntos críticos.",
+      "risk": { "label": "Riesgo", "value": "Medio" },
+      "confidence": { "label": "Confianza", "value": "92 %" }
+    }
+  }
+}

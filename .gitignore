@@ -22,3 +22,20 @@ pnpm-debug.log*
 
 # eslint
 .eslintcache
+
+# ── paquete web OPX (playbook Dekalabs) ──────────────────
+landing/node_modules/
+landing/assets/vendor/
+captures/
+deploy/dist/
+deploy/.venv/
+deploy/qr-opx.*
+landing/playwright-report/
+landing/test-results/
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+tmp/
+
+# Configuración local de Claude Code (personal)
+.claude/settings.local.json

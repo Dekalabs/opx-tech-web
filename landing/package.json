@@ -1,0 +1,22 @@
+{
+  "name": "opx-tech-landing",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Landing y presentación de la suite OPX — paquete playbook Dekalabs",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "sync": "node sync-data.mjs",
+    "bundle": "node bundle.mjs",
+    "art": "node gen-assets.mjs",
+    "build": "npm run sync && npm run bundle",
+    "check": "npm run build && node audit.mjs",
+    "shots": "node shots.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.2",
+    "gsap": "^3.12.7",
+    "motion": "^11.15.0",
+    "playwright": "^1.49.1"
+  }
+}

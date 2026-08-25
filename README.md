@@ -1,3 +1,33 @@
+# Web OPX — paquete playbook (nueva web de opx.tech)
+
+La nueva web de la suite OPX vive en este repositorio siguiendo el método del
+playbook Dekalabs (`playbook-opx-deka.html`). Contrato de agentes en
+[`AGENTS.md`](AGENTS.md); decisiones y pendientes en
+[`DECISIONS.md`](DECISIONS.md); copy aprobado en [`COPY.md`](COPY.md); datos
+canónicos en [`data/opx-suite-case.json`](data/opx-suite-case.json); marca en
+[`brand/README.md`](brand/README.md).
+
+```sh
+node data/validate.mjs        # valida el JSON canónico
+cd landing && npm ci          # primera vez (y npx playwright install chromium)
+npm run check                 # build + auditoría completa (67 comprobaciones)
+npm run shots                 # capturas deterministas → captures/web/
+cd .. && ./finish.sh          # auditoría + paquete publicable en deploy/dist/
+```
+
+Publicación (solo con autorización expresa):
+`npx wrangler deploy --assets deploy/dist --name opx-tech`. QR:
+`deploy/make-qr.py <URL>`. Comandos al detalle en
+[`landing/README.md`](landing/README.md).
+
+**Pendiente (NEEDS_INPUT)**: email público de contacto y endpoint del
+formulario, en `data/opx-suite-case.json → contact` (ver DECISIONS.md · 1–2).
+
+> Lo que sigue es el README original de la plantilla Vue 3 de Dekalabs, que
+> permanece intacta en `src/` y no forma parte del paquete web.
+
+---
+
 <div align="center">
   <h2>Template <br/> Clean Arquitecture + Vite + Vue 3</h2>
   <p>an awesome project from <a href="https://dekalabs.com">Dekalabs</a> 🚀 ⚡️</p>
