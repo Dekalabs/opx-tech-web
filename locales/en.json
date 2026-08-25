@@ -1,0 +1,21 @@
+{
+  "auth": {
+    "description": "An awesome template by Dekalabs",
+    "login": "Log in",
+    "logout": "Log out",
+    "name": "What's your name?"
+  },
+  "errors": {
+    "404": "Page not found",
+    "authRequired": "You need to be authenticated to access this page",
+    "network": "There was an error with the network",
+    "notValidCredentials": "Unable to find an active user with the credentials provided",
+    "notVerifiedAccount": "Pending account verification"
+  },
+  "general": {
+    "hello": "Hello",
+    "home": "Home",
+    "people": "People",
+    "welcome": "Welcome to"
+  }
+}

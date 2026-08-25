@@ -1,0 +1,21 @@
+{
+  "auth": {
+    "description": "Una plantilla awesómica de Dekalabs",
+    "login": "Iniciar sesión",
+    "logout": "Cerrar sesión",
+    "name": "¿Cómo te llamas?"
+  },
+  "errors": {
+    "404": "Página no encontrada",
+    "authRequired": "Necesitas estar autenticado para acceder a ésta página",
+    "network": "Ha ocurrido un error con la conexión",
+    "notValidCredentials": "No se ha encontrado un usuario activo con la credenciales proporcionadas",
+    "notVerifiedAccount": "Cuenta pendiente de verificación"
+  },
+  "general": {
+    "hello": "Hola",
+    "home": "Inicio",
+    "people": "Gente",
+    "welcome": "Bienvenido a"
+  }
+}
