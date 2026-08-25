@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "Vue.volar",
+    "lokalise.i18n-ally",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "stylelint.vscode-stylelint",
+    "cpylua.language-postcss",
+    "richie5um2.vscode-sort-json",
+    "bradlc.vscode-tailwindcss"
+  ]
+}

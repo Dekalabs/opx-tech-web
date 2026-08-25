@@ -1,0 +1,22 @@
+{
+  "auth": {
+    "description": "An awesome template by Dekalabs",
+    "login": "Log in",
+    "logout": "Log out",
+    "name": "What's your name?"
+  },
+  "controlPanel": {
+    "menu": "Control Panel",
+    "title": "This is the control panel"
+  },
+  "errors": {
+    "404": "Page not found"
+  },
+  "general": {
+    "welcome": "Welcome to"
+  },
+  "statistics": {
+    "menu": "Statistics",
+    "title": "This are the statistics"
+  }
+}

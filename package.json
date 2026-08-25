@@ -1,0 +1,48 @@
+{
+  "name": "template-clean-vite-vue3",
+  "version": "0.1.0",
+  "description": "Template Clean Architecture + Vite + Vue3",
+  "author": "Dekalabs",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview",
+    "lint:js": "eslint --ext .js,.vue --ignore-path .gitignore",
+    "lint:js:fix": "eslint --ext .js,.vue --ignore-path .gitignore --fix",
+    "lint:style": "stylelint \"**/*.{vue,css}\" --ignore-path .gitignore",
+    "lint:style:fix": "stylelint --fix \"**/*.{vue,css}\" --ignore-path .gitignore",
+    "format": "prettier . --write",
+    "prepare": "husky install",
+    "release": "standard-version"
+  },
+  "dependencies": {
+    "vue": "3.2.45",
+    "vue-i18n": "9.2.2",
+    "vue-router": "4.1.6"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "16.1.0",
+    "@commitlint/config-conventional": "16.0.0",
+    "@intlify/unplugin-vue-i18n": "0.8.2",
+    "@vitejs/plugin-vue": "3.2.0",
+    "@vue/eslint-config-prettier": "7.0.0",
+    "autoprefixer": "10.4.13",
+    "eslint": "8.28.0",
+    "eslint-config-prettier": "8.5.0",
+    "eslint-plugin-vue": "9.8.0",
+    "husky": "7.0.4",
+    "lint-staged": "12.3.1",
+    "postcss": "8.4.19",
+    "postcss-preset-env": "7.8.3",
+    "prettier": "2.8.0",
+    "prettier-plugin-tailwindcss": "0.2.0",
+    "standard-version": "9.3.2",
+    "stylelint": "14.15.0",
+    "stylelint-config-prettier": "9.0.4",
+    "stylelint-config-recommended-vue": "1.4.0",
+    "stylelint-config-standard": "29.0.0",
+    "tailwindcss": "3.2.4",
+    "vite": "3.2.4"
+  }
+}
