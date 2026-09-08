@@ -55,7 +55,7 @@ const og = `<!doctype html><html lang="es"><head><meta charset="utf-8"><style>
   .url { position: absolute; z-index: 2; right: 56px; bottom: 42px; color: #9ca6b0; font-size: 20px; font-family: "Outfit", sans-serif; font-weight: 600; }
 </style></head><body>
   <span class="glow"></span>
-  <p class="kicker">OPX — OPTIMA X</p>
+  <p class="kicker">OPX</p>
   <h1>La complejidad no se elimina. <em>Se gobierna.</em></h1>
   <p class="sub">Espacios, procesos, incidentes y aprendizaje conectados en un ciclo operativo completo.</p>
   <div class="row">

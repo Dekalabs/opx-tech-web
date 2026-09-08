@@ -39,13 +39,13 @@ const browser = await chromium.launch();
 /* ════ deterministas previas (sin navegador) ═════════════════════════ */
 console.log("\n■ Datos y regiones generadas");
 try {
-  execFileSync("node", [join(here, "..", "data", "validate.mjs")], { stdio: "pipe" });
+  execFileSync(process.execPath, [join(here, "..", "data", "validate.mjs")], { stdio: "pipe" });
   add("validate.mjs del JSON canónico", true);
 } catch (e) {
   add("validate.mjs del JSON canónico", false, String(e.stdout || e.message).slice(0, 200));
 }
 try {
-  execFileSync("node", [join(here, "sync-data.mjs"), "--check"], { stdio: "pipe" });
+  execFileSync(process.execPath, [join(here, "sync-data.mjs"), "--check"], { stdio: "pipe" });
   add("sync-data --check (sin deriva de regiones)", true);
 } catch (e) {
   add("sync-data --check (sin deriva de regiones)", false, String(e.stderr || e.message).slice(0, 200));
@@ -254,11 +254,17 @@ console.log("\n■ Página (contexto normal, 1440x900)");
     const out = [];
     api.reset();
     out.push(["inicio pendiente", api.state("s1") === "pendiente" && api.state("s6") === "pendiente"]);
+    out.push(["solo la primera tarjeta visible antes de iniciar",
+      document.querySelectorAll(".case-step:not([hidden])").length === 1
+      && document.querySelector(".case-step:not([hidden])")?.dataset.step === "s1"]);
     out.push(["goto adelantado rechazado", api.goto(3) === false]);
     api.start();
     out.push(["start activa s1", api.state("s1") === "activo"]);
     api.next();
     out.push(["next completa s1 y activa s2", api.state("s1") === "completado" && api.state("s2") === "activo"]);
+    out.push(["next sustituye la tarjeta visible",
+      document.querySelectorAll(".case-step:not([hidden])").length === 1
+      && document.querySelector(".case-step:not([hidden])")?.dataset.step === "s2"]);
     api.prev();
     out.push(["prev vuelve a s1", api.state("s1") === "activo" && api.state("s2") === "pendiente"]);
     let guard = 0;
@@ -275,7 +281,8 @@ console.log("\n■ Página (contexto normal, 1440x900)");
   });
   if (trans.fail) add("caso guiado", false, trans.fail);
   else for (const [name, pass] of trans.out) add(`caso guiado: ${name}`, pass);
-  const pendingOpacity = await page.evaluate(() => Number(getComputedStyle(document.querySelector(".case-step")).opacity));
+  await page.waitForTimeout(400);
+  const pendingOpacity = await page.evaluate(() => Number(getComputedStyle(document.querySelector(".case-step:not([hidden])")).opacity));
   add("pasos pendientes conservan contraste legible", pendingOpacity >= 0.7, `opacity=${pendingOpacity}`);
 
   await ctx.close();
@@ -306,7 +313,7 @@ for (const [w, h] of [[390, 844], [768, 1024], [1440, 900], [2560, 1440]]) {
   const metrics = await page.evaluate(() => {
     const doc = document.documentElement;
     const overflowX = Math.max(doc.scrollWidth - doc.clientWidth, document.body.scrollWidth - doc.clientWidth);
-    const hidden = ["h1", "#contexto h2", ".suite-card", ".case-step", ".mock-panel", ".ia-quote"]
+    const hidden = ["h1", "#contexto h2", ".suite-card", ".case-step:not([hidden])", ".mock-panel", ".ia-quote"]
       .flatMap((sel) => [...document.querySelectorAll(sel)])
       .filter((el) => {
         const cs = getComputedStyle(el);

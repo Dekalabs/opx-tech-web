@@ -1,5 +1,5 @@
 /**
- * OPX — Optima X · comportamiento de la landing.
+ * OPX · comportamiento de la landing.
  * Sin peticiones externas: los datos llegan embebidos por sync-data.mjs.
  * Todo el contenido es legible sin JavaScript; aquí solo se añade
  * animación, el caso guiado interactivo y el modo presentación.
@@ -20,6 +20,21 @@ const CONTACT_FORM_ENABLED = DATA?.contact?.form_enabled === true;
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 document.documentElement.classList.add("js");
 
+const siteHeader = document.querySelector(".site-header");
+const syncHeaderSurface = () => siteHeader?.classList.toggle("is-scrolled", window.scrollY > 20);
+syncHeaderSurface();
+window.addEventListener("scroll", syncHeaderSurface, { passive: true });
+
+const corporateVideo = document.querySelector(".video-showcase video");
+if (corporateVideo) {
+  const ensureCorporateVideoPlayback = () => corporateVideo.play().catch(() => {});
+  corporateVideo.addEventListener("canplay", ensureCorporateVideoPlayback, { once: true });
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) ensureCorporateVideoPlayback();
+  });
+  ensureCorporateVideoPlayback();
+}
+
 /* ══ 1 · Animación de entrada (solo sin reduced-motion) ═══════════════ */
 if (!reduced) {
   const h1 = document.querySelector(".hero h1");
@@ -37,13 +52,11 @@ if (!reduced) {
       });
     } catch { /* SplitText no disponible: se conserva el titular estático */ }
   }
-  gsap.from(".hero .kicker, .hero-lead, .hero .cta-row, .hero-principle", {
+  gsap.from(".hero-lead, .hero .cta-row", {
     y: 22, autoAlpha: 0, duration: 0.8, ease: "power2.out", stagger: 0.12, delay: 0.35,
   });
-  gsap.from(".hero-visual", { x: 34, autoAlpha: 0, duration: 1.05, ease: "power3.out", delay: 0.22 });
-  gsap.from(".hero-console", { y: 22, autoAlpha: 0, duration: 0.8, ease: "power2.out", delay: 0.65 });
 
-  ScrollTrigger.batch(".card, .pain, .mock-panel, .ia-quote", {
+  ScrollTrigger.batch(".card:not(.suite-card):not(.question-card), .pain, .mock-panel, .ia-quote", {
     start: "top 92%",
     once: true,
     onEnter: (els) => gsap.from(els, { y: 26, autoAlpha: 0, duration: 0.7, ease: "power2.out", stagger: 0.07 }),
@@ -60,14 +73,220 @@ if (!reduced) {
   });
 }
 
-/* ══ 2 · Diagrama del ciclo: resaltado por producto ══════════════════ */
+/* ══ 2 · Enfoque: pregunta única, revelado tipográfico y navegación ══ */
+const approachApi = (() => {
+  const root = document.querySelector(".questions");
+  const cards = [...document.querySelectorAll(".question-card")];
+  const pagination = document.querySelector(".question-pagination");
+  const live = document.querySelector(".question-live");
+  if (!root || !pagination || !cards.length || reduced) {
+    return { count: cards.length, index: () => 0, goto: () => false, next: () => false, prev: () => false, play: () => false, pause: () => false };
+  }
+
+  const productColors = { venue: "var(--p-venue)", flow: "var(--p-flow)", response: "var(--p-response)", insight: "var(--p-insight)" };
+  const interval = 5200;
+  let active = 0;
+  let timer = null;
+  let inView = false;
+  let pausedByPointer = false;
+  let pausedByFocus = false;
+  let timeline = null;
+  let activeSplit = null;
+
+  root.classList.add("is-carousel");
+  pagination.classList.add("is-active");
+
+  const dots = cards.map((card, index) => {
+    const title = card.querySelector("h3")?.textContent.trim() || `Pregunta ${index + 1}`;
+    const id = `enfoque-pregunta-${index + 1}`;
+    card.id = id;
+    card.setAttribute("role", "tabpanel");
+    const dot = document.createElement("button");
+    dot.type = "button";
+    dot.className = "question-dot";
+    dot.setAttribute("role", "tab");
+    dot.setAttribute("aria-controls", id);
+    dot.setAttribute("aria-label", `Mostrar ${title}`);
+    dot.style.setProperty("--dot-color", productColors[card.dataset.p] || "var(--accent-400)");
+    dot.addEventListener("click", () => {
+      show(index, true);
+      restart();
+    });
+    pagination.append(dot);
+    return dot;
+  });
+
+  const setState = (index) => {
+    cards.forEach((card, cardIndex) => {
+      const selected = cardIndex === index;
+      card.classList.toggle("is-active", selected);
+      card.setAttribute("aria-hidden", String(!selected));
+      card.tabIndex = selected ? 0 : -1;
+    });
+    dots.forEach((dot, dotIndex) => {
+      const selected = dotIndex === index;
+      dot.setAttribute("aria-selected", String(selected));
+      dot.tabIndex = selected ? 0 : -1;
+    });
+    root.style.setProperty("--active-color", productColors[cards[index].dataset.p] || "var(--accent-400)");
+  };
+
+  const reveal = (card) => {
+    timeline?.kill();
+    activeSplit?.revert();
+    activeSplit = null;
+    const title = card.querySelector("h3");
+    const index = card.querySelector(".question-index");
+    const detail = card.querySelector("p");
+    const media = card.querySelector(".question-media");
+    timeline = gsap.timeline();
+    timeline.fromTo(card, { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: .48, ease: "power2.out" });
+    if (media) {
+      timeline.fromTo(media, { y: 56, autoAlpha: 0, scale: .985 }, { y: 0, autoAlpha: 1, scale: 1, duration: .85, ease: "power3.out" }, .08);
+    }
+    timeline.fromTo(index, { y: -12, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: .45, ease: "power2.out" }, 0.08);
+    if (title) {
+      try {
+        activeSplit = new SplitText(title, { type: "words,lines", linesClass: "question-line" });
+        timeline.from(activeSplit.words, { yPercent: 115, autoAlpha: 0, duration: .8, ease: "power3.out", stagger: .055 }, .12);
+      } catch {
+        timeline.from(title, { y: 30, autoAlpha: 0, duration: .75, ease: "power3.out" }, .12);
+      }
+    }
+    timeline.fromTo(detail, { y: 15, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: .55, ease: "power2.out" }, .4);
+    timeline.eventCallback("onComplete", () => {
+      activeSplit?.revert();
+      activeSplit = null;
+    });
+  };
+
+  function show(index, announce = false) {
+    const target = (index + cards.length) % cards.length;
+    if (target === active && cards[target].classList.contains("is-active")) return false;
+    const previous = cards[active];
+    active = target;
+    gsap.killTweensOf(previous);
+    gsap.to(previous, { y: -18, autoAlpha: 0, duration: .28, ease: "power2.in" });
+    setState(active);
+    reveal(cards[active]);
+    if (announce && live) live.textContent = `${cards[active].querySelector("h3")?.textContent}. ${cards[active].querySelector("p")?.textContent}`;
+    return true;
+  }
+
+  const stop = () => {
+    if (timer) window.clearInterval(timer);
+    timer = null;
+  };
+  const start = () => {
+    stop();
+    if (inView && !pausedByPointer && !pausedByFocus && !document.hidden) timer = window.setInterval(() => show(active + 1), interval);
+  };
+  function restart() { stop(); start(); }
+
+  setState(0);
+  gsap.set(cards[0], { y: 0, autoAlpha: 1 });
+
+  const observer = new IntersectionObserver(([entry]) => {
+    inView = entry.isIntersecting;
+    if (inView) {
+      if (!root.dataset.revealed) {
+        root.dataset.revealed = "true";
+        reveal(cards[active]);
+      }
+      start();
+    } else stop();
+  }, { threshold: .35 });
+  observer.observe(root);
+
+  root.addEventListener("pointerenter", () => { pausedByPointer = true; stop(); });
+  root.addEventListener("pointerleave", () => { pausedByPointer = false; start(); });
+  pagination.addEventListener("focusin", () => { pausedByFocus = true; stop(); });
+  pagination.addEventListener("focusout", (event) => {
+    if (pagination.contains(event.relatedTarget)) return;
+    pausedByFocus = false;
+    start();
+  });
+  pagination.addEventListener("keydown", (event) => {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    const target = event.key === "Home" ? 0 : event.key === "End" ? cards.length - 1 : active + (event.key === "ArrowRight" ? 1 : -1);
+    show(target, true);
+    dots[active].focus();
+    restart();
+  });
+  document.addEventListener("visibilitychange", () => document.hidden ? stop() : start());
+
+  let touchX = null;
+  root.addEventListener("pointerdown", (event) => { if (event.pointerType === "touch") touchX = event.clientX; });
+  root.addEventListener("pointerup", (event) => {
+    if (event.pointerType !== "touch" || touchX === null) return;
+    const delta = event.clientX - touchX;
+    touchX = null;
+    if (Math.abs(delta) > 52) {
+      show(active + (delta < 0 ? 1 : -1), true);
+      restart();
+    }
+  });
+
+  return {
+    count: cards.length,
+    index: () => active,
+    goto: (index) => show(index, true),
+    next: () => show(active + 1, true),
+    prev: () => show(active - 1, true),
+    play: () => { pausedByPointer = false; pausedByFocus = false; start(); return true; },
+    pause: () => { pausedByPointer = true; stop(); return true; },
+  };
+})();
+
+/* ══ 3 · Suite: paneles que se revelan y conservan su estado ═════════ */
+const suiteCards = [...document.querySelectorAll(".suite-card")];
+const suiteCardsRoot = document.querySelector(".suite-cards");
+
+if (suiteCardsRoot && suiteCards.length) {
+  suiteCards.forEach((card, index) => card.style.setProperty("--suite-index", index));
+
+  const openSuiteCard = (card) => {
+    if (card.classList.contains("is-open")) return;
+    card.classList.add("is-open");
+    if (suiteCards.every((item) => item.classList.contains("is-open"))) {
+      suiteCardsRoot.classList.add("is-complete");
+    }
+    window.setTimeout(() => ScrollTrigger.refresh(), 800);
+  };
+
+  if (reduced) {
+    suiteCards.forEach((card) => card.classList.add("is-open"));
+    suiteCardsRoot.classList.add("is-complete");
+  } else {
+    suiteCardsRoot.classList.add("is-enhanced");
+    suiteCards.forEach((card, index) => {
+      ScrollTrigger.create({
+        trigger: card,
+        start: () => `top ${96 + (index * 12)}px`,
+        once: true,
+        onEnter: () => openSuiteCard(card),
+      });
+      card.addEventListener("focusin", () => openSuiteCard(card));
+
+      let hoverTimer;
+      card.addEventListener("pointerenter", (event) => {
+        if (event.pointerType !== "mouse") return;
+        hoverTimer = window.setTimeout(() => openSuiteCard(card), 120);
+      });
+      card.addEventListener("pointerleave", () => window.clearTimeout(hoverTimer));
+    });
+  }
+}
+
+/* ══ 3 · Resaltado por producto en el caso guiado ════════════════════ */
 const highlightProduct = (productId) => {
   document.querySelectorAll(".cycle-node").forEach((node) => {
     node.classList.toggle("is-active", node.dataset.p === productId);
   });
 };
 
-/* ══ 3 · Caso guiado (motor de estados sobre el JSON canónico) ═══════ */
+/* ══ 4 · Caso guiado (motor de estados sobre el JSON canónico) ═══════ */
 const caseApi = (() => {
   const steps = DATA?.case?.steps ?? [];
   const stepEls = [...document.querySelectorAll(".case-step")];
@@ -79,15 +298,19 @@ const caseApi = (() => {
   const stateFor = (i) => (index >= steps.length ? "completado" : i < index ? "completado" : i === index ? "activo" : "pendiente");
 
   const render = (announce = true) => {
+    const visibleIndex = index < 0 ? 0 : Math.min(index, steps.length - 1);
     stepEls.forEach((el, i) => {
       const state = stateFor(i);
       el.dataset.state = state;
+      el.hidden = i !== visibleIndex;
+      if (i === visibleIndex) el.setAttribute("aria-current", "step");
+      else el.removeAttribute("aria-current");
       const badge = el.querySelector(".case-state");
       if (badge) badge.textContent = labels[state];
     });
     const btn = (name) => controls?.querySelector(`[data-case="${name}"]`);
     if (btn("prev")) btn("prev").disabled = index <= 0;
-    if (btn("next")) btn("next").disabled = index >= steps.length;
+    if (btn("next")) btn("next").disabled = index < 0 || index >= steps.length;
     if (btn("start")) btn("start").disabled = index >= 0 && index < steps.length;
     if (live && announce) {
       if (index < 0) live.textContent = "Recorrido sin iniciar. Pulsa «Iniciar el recorrido».";
@@ -148,7 +371,7 @@ const presentApi = (() => {
     hud.className = "present-hud";
     hud.innerHTML = `
       <span class="present-chapter"></span>
-      <span class="present-hint">← → navegar · Esc salir</span>
+      <span class="present-hint">Teclas de dirección para navegar · Esc salir</span>
       <span class="present-counter"><span class="present-current">01</span> / <span class="present-total">${String(slides.length).padStart(2, "0")}</span></span>`;
     progress = document.createElement("div");
     progress.className = "present-progress";
@@ -204,7 +427,7 @@ const presentApi = (() => {
     document.querySelector(".site-header")?.setAttribute("inert", "");
     document.querySelector(".site-footer")?.setAttribute("inert", "");
     ScrollTrigger.getAll().forEach((st) => st.disable(false));
-    gsap.set(".card, .pain, .case-step, .mock-panel, .ia-quote, .hero h1 div, .hero .kicker, .hero-lead, .hero .cta-row, .hero-principle, .hero-visual, .hero-console", { clearProps: "all" });
+    gsap.set(".card, .pain, .case-step, .mock-panel, .ia-quote, .hero h1 div, .hero-lead, .hero .cta-row", { clearProps: "all" });
     const fromView = slides.findIndex((s) => s.getBoundingClientRect().bottom > 80);
     document.documentElement.requestFullscreen?.().catch(() => {});
     show(Math.max(0, fromView), true);
@@ -225,6 +448,8 @@ const presentApi = (() => {
     if (hud) { hud.style.display = "none"; progress.style.display = "none"; }
     if (document.fullscreenElement) document.exitFullscreen?.().catch(() => {});
     window.scrollTo({ top: savedScroll, behavior: "instant" });
+    ScrollTrigger.getAll().forEach((st) => st.enable(false));
+    ScrollTrigger.refresh();
     savedFocus?.focus?.({ preventScroll: true });
   };
 
@@ -324,6 +549,7 @@ window.OPX = {
   flags: { SUITE_SCENE_3D_ENABLED, CONTACT_FORM_ENABLED },
   data: DATA,
   caseApi,
+  approachApi,
   presentApi,
   highlightProduct,
 };

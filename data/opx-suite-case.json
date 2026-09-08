@@ -7,8 +7,8 @@
     "title": "Una noche de evento, el ciclo completo",
     "sources": [
       { "id": "opx-web", "label": "https://opx.tech/ — copy aprobado de la suite (2026-08-25)" },
-      { "id": "venue-web", "label": "https://venue.opx.tech/ — copy y mock públicos de Optima Venue (2026-08-25)" },
-      { "id": "flow-web", "label": "https://flow.opx.tech/ — copy público de Optima Flow (2026-08-25)" },
+      { "id": "venue-web", "label": "https://venue.opx.tech/ — copy y mock públicos de OPX Venue (2026-08-25)" },
+      { "id": "flow-web", "label": "https://flow.opx.tech/ — copy público de OPX Flow (2026-08-25)" },
       { "id": "ficcion-caso", "label": "Escenario ficticio privacy-safe definido en este paquete; no es un claim de producto" }
     ],
     "notes": [
@@ -55,7 +55,7 @@
   "products": [
     {
       "id": "venue",
-      "name": "Optima Venue",
+      "name": "OPX Venue",
       "axis": "Qué gestionas",
       "question": "¿Qué gestionamos?",
       "question_detail": "Activos, espacios, infraestructuras.",
@@ -66,7 +66,7 @@
     },
     {
       "id": "flow",
-      "name": "Optima Flow",
+      "name": "OPX Flow",
       "axis": "Cómo lo gestionas",
       "question": "¿Cómo lo gestionamos?",
       "question_detail": "Procesos, flujos, reglas de decisión.",
@@ -77,7 +77,7 @@
     },
     {
       "id": "response",
-      "name": "Optima Response",
+      "name": "OPX Response",
       "axis": "Cómo reaccionas",
       "question": "¿Cómo reaccionamos?",
       "question_detail": "Incidentes, protocolos, coordinación.",
@@ -88,7 +88,7 @@
     },
     {
       "id": "insight",
-      "name": "Optima Insight",
+      "name": "OPX Insight",
       "axis": "Cómo aprendes",
       "question": "¿Cómo aprendemos?",
       "question_detail": "Análisis, patrones, mejora continua.",
@@ -120,7 +120,7 @@
         "actor": "agente-opx",
         "channel": "Panel operativo",
         "title": "Saturación detectada en la zona norte",
-        "detail": "El panel operativo de Optima Venue registra un 87 % de saturación en la zona norte, flujo alto en los accesos principales y 2 incidencias activas.",
+        "detail": "El panel operativo de OPX Venue registra un 87 % de saturación en la zona norte, flujo alto en los accesos principales y 2 incidencias activas.",
         "requires": []
       },
       {
@@ -130,7 +130,7 @@
         "actor": "marta",
         "channel": "Móvil del staff",
         "title": "Protocolo de aforo activado",
-        "detail": "Optima Response activa el protocolo de saturación: avisa a seguridad y a accesos con la instrucción y el contexto necesarios para ejecutarla.",
+        "detail": "OPX Response activa el protocolo de saturación: avisa a seguridad y a accesos con la instrucción y el contexto necesarios para ejecutarla.",
         "requires": ["s1"]
       },
       {
@@ -150,7 +150,7 @@
         "actor": "marta",
         "channel": "Panel de decisión",
         "title": "La decisión queda estructurada",
-        "detail": "Optima Flow registra la evaluación con criterios explícitos: la opción elegida, la descartada y el porqué quedan trazados para la auditoría posterior.",
+        "detail": "OPX Flow registra la evaluación con criterios explícitos: la opción elegida, la descartada y el porqué quedan trazados para la auditoría posterior.",
         "requires": ["s3"],
         "decision": {
           "chosen": "redirigir",
@@ -191,7 +191,7 @@
         "actor": "agente-opx",
         "channel": "Informe de ciclo",
         "title": "El incidente se convierte en patrón",
-        "detail": "Optima Insight registra el episodio, lo relaciona con eventos anteriores y propone ajustar la señalización para el próximo evento con aforo completo.",
+        "detail": "OPX Insight registra el episodio, lo relaciona con eventos anteriores y propone ajustar la señalización para el próximo evento con aforo completo.",
         "requires": ["s5"]
       }
     ]

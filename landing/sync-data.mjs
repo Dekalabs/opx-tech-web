@@ -37,18 +37,62 @@ const runtime = {
 const json = `<script type="application/json" id="opx-data">${JSON.stringify(runtime).replaceAll("</", "<\\/")}</script>`;
 
 /* ── regiones ──────────────────────────────────────────────────────── */
+const painBreakAfter = { "01": "rápido", "02": "actores,", "03": "excepciones:", "04": "tarde" };
+const painCopy = (pain) => {
+  const marker = painBreakAfter[pain.n];
+  const splitAt = marker ? pain.text.indexOf(marker) + marker.length : 0;
+  if (!marker || splitAt < marker.length) return esc(pain.text);
+  return `<span class="pain-line">${esc(pain.text.slice(0, splitAt))}</span><span class="pain-line">${esc(pain.text.slice(splitAt).trimStart())}</span>`;
+};
+
 const pains = data.pains.map((p) => `
         <li class="pain">
           <span class="pain-n" aria-hidden="true">${esc(p.n)}</span>
-          <p>${esc(p.text)}</p>
+          <p>${painCopy(p)}</p>
         </li>`).join("");
 
-const questions = products.map((p) => `
-          <article class="card question-card" data-p="${p.id}">
-            <span class="question-index" aria-hidden="true">0${products.indexOf(p) + 1}</span>
-            <h3>${esc(p.question)}</h3>
-            <p>${esc(p.question_detail)}</p>
-          </article>`).join("");
+const questionMedia = {
+  venue: {
+    src: "assets/media/opx-enfoque-venue-event.jpg",
+    alt: "Persona utilizando OPX Venue en un teléfono móvil durante un evento deportivo",
+    width: 3508,
+    height: 2481,
+  },
+  flow: {
+    src: "assets/media/opx-enfoque-flow.jpg",
+    alt: "Aplicación móvil de OPX para registrar y gestionar un incidente operativo",
+    width: 3508,
+    height: 2481,
+  },
+  response: {
+    src: "assets/media/opx-enfoque-response.jpg",
+    alt: "Composición de interfaces de OPX Suite para coordinar la respuesta operativa",
+    width: 3508,
+    height: 2481,
+  },
+  insight: {
+    src: "assets/media/opx-enfoque-insight.jpg",
+    alt: "Interfaces de OPX Flow para gestionar solicitudes y aprendizaje operativo",
+    width: 3508,
+    height: 2481,
+  },
+};
+
+const questions = products.map((p) => {
+  const media = questionMedia[p.id];
+  const mediaMarkup = media ? `
+            <figure class="question-media">
+              <img src="${media.src}" alt="${esc(media.alt)}" width="${media.width}" height="${media.height}" loading="lazy" decoding="async">
+            </figure>` : "";
+  return `
+          <article class="card question-card" data-p="${p.id}" data-has-media="${Boolean(media)}">${mediaMarkup}
+            <div class="question-copy">
+              <span class="question-index" aria-hidden="true">0${products.indexOf(p) + 1}</span>
+              <h3>${esc(p.question)}</h3>
+              <p>${esc(p.question_detail)}</p>
+            </div>
+          </article>`;
+}).join("");
 
 const pillars = data.ia_pillars.map((p) => `
           <article class="card pillar">
@@ -57,40 +101,51 @@ const pillars = data.ia_pillars.map((p) => `
             <p>${esc(p.detail)}</p>
           </article>`).join("");
 
+const suiteLogos = {
+  venue: { width: 2450, height: 800 },
+  flow: { width: 1850, height: 800 },
+  response: { width: 1550, height: 800 },
+  insight: { width: 1850, height: 800 },
+};
+
 const suiteCards = products.map((p) => {
-  const link = p.status === "live" && p.url
-    ? `<a class="suite-link" href="${esc(p.url)}" target="_blank" rel="noopener">Visitar web <span aria-hidden="true">→</span></a>`
-    : `<span class="suite-soon">Web del producto próximamente</span>`;
+  const isLive = p.status === "live" && p.url;
+  const logo = suiteLogos[p.id];
+  const productName = logo
+    ? `<h3 class="suite-product-title suite-product-title-logo" data-logo-product="${p.id}">
+                    <span class="visually-hidden">${esc(p.name)}</span>
+                    <span class="suite-product-logo" aria-hidden="true">
+                      <img class="suite-product-logo-black" src="assets/brand/products/opx-${p.id}-black.png" alt="" width="${logo.width}" height="${logo.height}">
+                      <img class="suite-product-logo-white" src="assets/brand/products/opx-${p.id}-white.png" alt="" width="${logo.width}" height="${logo.height}">
+                    </span>
+                  </h3>`
+    : `<h3>${esc(p.name)}</h3>`;
+  const content = `
+              <div class="suite-card-head">
+                <div>
+                  <p class="suite-axis">${esc(p.axis)}</p>
+                  ${productName}
+                </div>
+              </div>
+              <div class="suite-card-body">
+                <p class="suite-summary">${esc(p.summary)}</p>
+                <div class="suite-card-foot">
+                  <p class="suite-tagline">«${esc(p.tagline)}»</p>
+                  <span class="${isLive ? "suite-link" : "suite-soon"}">${isLive ? `Visitar ${esc(p.name)}` : "Web del producto próximamente"}</span>
+                </div>
+              </div>`;
   return `
             <article class="card suite-card" data-p="${p.id}">
-              <div class="suite-card-top"><span class="suite-number" aria-hidden="true">0${products.indexOf(p) + 1}</span><p class="suite-axis">${esc(p.axis)}</p></div>
-              <h3>${esc(p.name)}</h3>
-              <p>${esc(p.summary)}</p>
-              <p class="suite-tagline">«${esc(p.tagline)}»</p>
-              ${link}
+              ${isLive
+                ? `<a class="suite-card-anchor" href="${esc(p.url)}" target="_blank" rel="noopener" aria-label="Visitar ${esc(p.name)}">${content}</a>`
+                : `<div class="suite-card-anchor">${content}</div>`}
             </article>`;
 }).join("");
 
-const nodes = products.map((p) => {
-  const inner = `
-                <span class="cycle-node-index" aria-hidden="true">0${products.indexOf(p) + 1}</span>
-                <span class="cycle-node-copy"><strong>${esc(p.name.replace("Optima ", ""))}</strong><small>${esc(p.axis)}</small></span>
-                <span class="cycle-node-arrow" aria-hidden="true">→</span>`;
-  return p.status === "live" && p.url
-    ? `<a href="${esc(p.url)}" target="_blank" rel="noopener" class="cycle-node" data-p="${p.id}" aria-label="${esc(p.name)} — ${esc(p.axis)} (abrir web)">${inner}</a>`
-    : `<div class="cycle-node" data-p="${p.id}" role="group" aria-label="${esc(p.name)} — ${esc(p.axis)} (web próximamente)">${inner}</div>`;
-}).join("\n");
-
-const cycle = `
-            <div class="cycle-board" role="group" aria-label="Ciclo de la suite OPX: Venue, Flow, Response e Insight se refuerzan en un ciclo continuo">
-              ${nodes}
-              <p class="cycle-return"><span aria-hidden="true">↳</span> El aprendizaje vuelve a la operación</p>
-            </div>`;
-
 const caseHeading = `
-        <div class="case-heading-copy">
-          <h2>${esc(data.case.title)}</h2>
-          <p class="lead">${esc(data.case.intro)}</p>
+        <div class="case-heading-copy section-copy-header">
+          <h2>El ciclo en acción</h2>
+          <p class="lead">${esc(data.case.title)} ${esc(data.case.intro)}</p>
         </div>`;
 
 const stateLabel = { pendiente: "Pendiente", activo: "Activo", completado: "Completado", descartado: "Descartado" };
@@ -98,14 +153,14 @@ const steps = data.case.steps.map((s) => {
   const actor = actors[s.actor];
   const product = byId[s.product];
   const decision = s.decision ? `
-              <div class="case-decision" role="group" aria-label="Opciones evaluadas en Optima Flow">
+              <div class="case-decision" role="group" aria-label="Opciones evaluadas en OPX Flow">
                 ${s.decision.options.map((o) => `
                 <div class="case-option ${o.outcome === "descartada" ? "is-descartada" : "is-aprobada"}">
                   <p class="case-option-head"><span class="case-option-outcome">${o.outcome === "descartada" ? "Descartada" : "Aprobada"}</span> ${esc(o.label)}</p>
                   <p class="case-option-meta">Riesgo: ${esc(o.risk)} · Confianza: ${esc(o.confidence)}</p>
                   <p class="case-option-reason">${esc(o.reason)}</p>
                 </div>`).join("")}
-                <p class="mock-caption">Recreación del panel de decisión de Optima Flow.</p>
+                <p class="mock-caption">Recreación del panel de decisión de OPX Flow.</p>
               </div>` : "";
   return `
             <li class="case-step" data-step="${s.id}" data-product="${s.product}" data-state="pendiente">
@@ -150,18 +205,17 @@ const heroConsole = `
             <p class="mock-caption">Recreación visual alimentada por el caso canónico.</p>
           </div>`;
 const venueMock = `
-            <div class="mock-panel" role="group" aria-label="Recreación del panel operativo de Optima Venue">
+            <div class="mock-panel" role="group" aria-label="Recreación del panel operativo de OPX Venue">
               <div class="mock-head"><span class="mock-title">${esc(panel.title)}</span><span class="mock-badge">${esc(panel.badge)}</span></div>
               <dl class="mock-rows">${panel.rows.map((r) => `
                 <div class="mock-row ${toneClass[r.tone] ?? "tone-neutro"}"><dt>${esc(r.label)}</dt><dd>${esc(r.value)}</dd></div>`).join("")}
               </dl>
               <p class="mock-reco">${esc(panel.recommendation)}</p>
               <p class="mock-foot"><span>${esc(panel.risk.label)}: <b>${esc(panel.risk.value)}</b></span><span>${esc(panel.confidence.label)}: <b>${esc(panel.confidence.value)}</b></span></p>
-              <p class="mock-caption">Recreación del panel operativo de Optima Venue.</p>
+              <p class="mock-caption">Recreación del panel operativo de OPX Venue.</p>
             </div>`;
 
-const disclaimer = `
-        <p class="case-disclaimer">${esc(data.case.disclaimer)}</p>`;
+const disclaimer = "";
 
 const mailto = emailOk
   ? `<p class="contact-mail">¿Prefieres el correo? <a href="mailto:${esc(data.contact.email)}">Escríbenos</a>.</p>`
@@ -191,12 +245,10 @@ const footerSuite = products.map((p) => p.status === "live" && p.url
 /* ── sustitución entre marcadores ──────────────────────────────────── */
 const regions = {
   "json": `  ${json}`,
-  "hero-console": heroConsole,
   "pains": pains,
   "questions": questions,
   "ia-pillars": pillars,
   "suite-cards": suiteCards,
-  "cycle-diagram": cycle,
   "case-heading": caseHeading,
   "case-timeline": steps,
   "venue-mock": venueMock,

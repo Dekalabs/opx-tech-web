@@ -72,8 +72,6 @@ Cómo funciona · Productos · Caso en acción · Nuestro principio — CTA:
   aprendizaje para que tu equipo decida con contexto y actúe con control.`
 - CTA primaria: `Ver OPX en una demo` → #contacto
 - CTA secundaria: `Ver el ciclo en acción` → #caso
-- Refuerzo: `La IA estructura. Las personas deciden.`
-- Secuencia visual: `Señal → Contexto → Decisión humana → Aprendizaje`.
 
 ### Contexto (El contexto)
 
@@ -110,7 +108,7 @@ Cómo funciona · Productos · Caso en acción · Nuestro principio — CTA:
 - Intro: `Cada producto resuelve una parte de la operación. Juntos convierten
   señales dispersas en decisiones trazables y aprendizaje continuo.`
 - Tarjetas de producto desde el JSON: eje (QUÉ GESTIONAS…), nombre, resumen,
-  lema entre comillas y enlace real (`Visitar web →`) o estado honesto
+  lema entre comillas y enlace real (`Visitar web`) o estado honesto
   (`Web del producto próximamente`). Nunca un enlace muerto.
 - Diagrama del ciclo Venue → Flow → Response → Insight.
 - Cierre: `Cada producto refuerza a los demás. Cada ciclo mejora el siguiente.`
@@ -121,9 +119,8 @@ Cómo funciona · Productos · Caso en acción · Nuestro principio — CTA:
 - H2: `Una noche de evento, el ciclo completo.`
 - Intro: `Un escenario realista y ficticio —el recinto Arena Cierzo durante un
   concierto con entradas agotadas— recorre los cuatro productos en 48 minutos.`
-- Aviso obligatorio bajo el caso: `Escenario ilustrativo con datos ficticios.
-  Las pantallas son recreaciones alimentadas por el caso canónico, no capturas
-  del producto.`
+- Sin aviso global bajo el caso; cada recreación mantiene su identificación
+  junto al panel correspondiente.
 - Pasos, horas, actores, canales, decisión (con opción descartada) y panel
   operativo desde el JSON canónico. Controles: `Iniciar el recorrido`,
   `Anterior`, `Siguiente`, `Reiniciar`.
